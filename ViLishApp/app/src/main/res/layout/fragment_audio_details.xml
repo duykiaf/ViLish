@@ -1,14 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.AudioDetailsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/primaryColor">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:navigationIcon="@drawable/arrow_back_ic"
+            app:navigationIconTint="@color/white"
+            app:title="@string/audio_details"
+            app:titleTextColor="@color/white" />
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/xx_sm"
+        android:background="@drawable/card_bg"
+        android:padding="@dimen/md">
+
+        <TextView
+            android:id="@+id/audioTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/audio_title"
+            android:textAlignment="center"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/x_md_txt"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/md"
+            android:progressTint="@color/primaryColor"
+            android:thumbTint="@color/primaryColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/audioTitle" />
+
+        <TextView
+            android:id="@+id/audioCurrentTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x_sm"
+            android:text="@string/audio_duration"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/sm_txt"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="@id/seekBar"
+            app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+        <TextView
+            android:id="@+id/audioDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x_sm"
+            android:text="@string/audio_duration"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/sm_txt"
+            app:layout_constraintEnd_toEndOf="@id/seekBar"
+            app:layout_constraintTop_toBottomOf="@id/seekBar" />
+
+        <ImageView
+            android:id="@+id/bookmarkIcon"
+            android:layout_width="@dimen/x_md"
+            android:layout_height="@dimen/x_md"
+            android:layout_marginTop="@dimen/x_sm"
+            android:contentDescription="@string/bookmark_border_icon"
+            android:src="@drawable/bookmark_blue_border_ic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/audioCurrentTime"
+            app:tint="@color/primaryColor" />
+
+        <ImageView
+            android:id="@+id/previousIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/skip_previous_ic"
+            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
+            app:layout_constraintEnd_toStartOf="@id/playOrPauseIcon"
+            app:layout_constraintStart_toEndOf="@id/bookmarkIcon"
+            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
+            app:tint="@color/primaryColor" />
+
+        <ImageView
+            android:id="@+id/playOrPauseIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/pause_circle_blue_outline_ic"
+            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
+            app:layout_constraintEnd_toStartOf="@id/nextIcon"
+            app:layout_constraintStart_toEndOf="@id/previousIcon"
+            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
+            app:tint="@color/primaryColor" />
+
+        <ImageView
+            android:id="@+id/nextIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/skip_next_ic"
+            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
+            app:layout_constraintEnd_toStartOf="@id/audioSpeed"
+            app:layout_constraintStart_toEndOf="@id/playOrPauseIcon"
+            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
+            app:tint="@color/primaryColor" />
+
+        <TextView
+            android:id="@+id/audioSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/speed_default"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/sm_txt"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/bookmarkIcon" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_marginHorizontal="@dimen/xx_sm"
+        android:layout_marginBottom="@dimen/xx_sm"
+        android:background="@drawable/card_bg"
+        android:padding="@dimen/md">
 
-</FrameLayout>
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/xx_sm"
+            tools:ignore="MissingConstraints" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

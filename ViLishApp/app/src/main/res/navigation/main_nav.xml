@@ -1,6 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             android:id="@+id/main_nav">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/splashScreenFragment">
 
+    <fragment
+        android:id="@+id/splashScreenFragment"
+        android:name="t3h.android.vilishapp.ui.SplashScreenFragment"
+        android:label="fragment_splash_screen"
+        tools:layout="@layout/fragment_splash_screen" >
+        <action
+            android:id="@+id/action_splashScreenFragment_to_topicsListFragment"
+            app:destination="@id/topicsListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/topicsListFragment"
+        android:name="t3h.android.vilishapp.ui.TopicsListFragment"
+        android:label="fragment_topics_list"
+        tools:layout="@layout/fragment_topics_list" >
+        <action
+            android:id="@+id/action_topicsListFragment_to_audioListFragment"
+            app:destination="@id/audioListFragment" />
+        <action
+            android:id="@+id/action_topicsListFragment_to_bookmarksListFragment"
+            app:destination="@id/bookmarksListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/audioListFragment"
+        android:name="t3h.android.vilishapp.ui.AudioListFragment"
+        android:label="fragment_audio_list"
+        tools:layout="@layout/fragment_audio_list" >
+        <action
+            android:id="@+id/action_audioListFragment_to_bookmarksListFragment"
+            app:destination="@id/bookmarksListFragment" />
+        <action
+            android:id="@+id/action_audioListFragment_to_audioDetailsFragment"
+            app:destination="@id/audioDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bookmarksListFragment"
+        android:name="t3h.android.vilishapp.ui.BookmarksListFragment"
+        android:label="fragment_bookmarks_list"
+        tools:layout="@layout/fragment_bookmarks_list" >
+        <action
+            android:id="@+id/action_bookmarksListFragment_to_audioDetailsFragment"
+            app:destination="@id/audioDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/audioDetailsFragment"
+        android:name="t3h.android.vilishapp.ui.AudioDetailsFragment"
+        android:label="fragment_audio_details"
+        tools:layout="@layout/fragment_audio_details" />
 </navigation>

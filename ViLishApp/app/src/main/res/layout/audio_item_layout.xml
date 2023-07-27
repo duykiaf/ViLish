@@ -1,6 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/audioItemLayout"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/x_lg"
+    android:layout_marginHorizontal="@dimen/xx_sm"
+    android:layout_marginTop="@dimen/x_sm"
+    android:background="@drawable/card_bg"
+    android:paddingHorizontal="@dimen/xx_sm">
+
+    <ImageView
+        android:id="@+id/playIcon"
+        android:layout_width="@dimen/lg"
+        android:layout_height="@dimen/lg"
+        android:contentDescription="@string/play_icon"
+        android:src="@drawable/play_circle_blue_outline_ic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/primaryColor"
+        tools:ignore="MissingConstraints" />
+
+    <LinearLayout
+        android:id="@+id/audioInfoLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/xx_sm"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/bookmarkIcon"
+        app:layout_constraintStart_toEndOf="@id/playIcon"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/audioTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/audio_title"
+            android:textColor="@color/black"
+            android:textSize="@dimen/md_txt"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/durationTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x_sm"
+            android:text="@string/audio_duration"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sm_txt" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/downloadIcon"
+        android:layout_width="@dimen/x_md"
+        android:layout_height="@dimen/x_md"
+        android:contentDescription="@string/download_icon"
+        android:src="@drawable/blue_download_ic"
+        app:layout_constraintBottom_toTopOf="@id/bookmarkIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/audioInfoLayout"
+        app:tint="@color/primaryColor" />
+
+    <ImageView
+        android:id="@+id/bookmarkIcon"
+        android:layout_width="@dimen/x_md"
+        android:layout_height="@dimen/x_md"
+        android:contentDescription="@string/bookmark_border_icon"
+        android:src="@drawable/bookmark_blue_border_ic"
+        app:layout_constraintBottom_toBottomOf="@id/audioInfoLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/downloadIcon"
+        app:tint="@color/primaryColor" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

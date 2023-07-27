@@ -1,3 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="sm">2dp</dimen>
+    <dimen name="x_sm">10dp</dimen>
+    <dimen name="xx_sm">16dp</dimen>
+    <dimen name="md">20dp</dimen>
+    <dimen name="x_md">30dp</dimen>
+    <dimen name="xx_md">40dp</dimen>
+    <dimen name="xxx_md">55dp</dimen>
+    <dimen name="lg">60dp</dimen>
+    <dimen name="x_lg">86dp</dimen>
+    <dimen name="xx_lg">96dp</dimen>
+    <dimen name="xxx_lg">300dp</dimen>
+
+    <dimen name="sm_txt">16sp</dimen>
+    <dimen name="md_txt">20sp</dimen>
+    <dimen name="x_md_txt">24sp</dimen>
+    <dimen name="xx_md_txt">40sp</dimen>
 </resources>

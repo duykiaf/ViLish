@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">ViLish App</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="vi_lish">Vi-Lish</string>
+    <string name="slogan">Listen to English anywhere</string>
+    <string name="start">Start</string>
+    <string name="search">Search</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="topic_name">Topic name</string>
+    <string name="topics">Topics</string>
+    <string name="no_data">No data</string>
+    <string name="play_icon">Play icon</string>
+    <string name="audio_duration">0:00</string>
+    <string name="bookmark_border_icon">Bookmark border icon</string>
+    <string name="download_icon">Download icon</string>
+    <string name="audio_title">Audio title</string>
+    <string name="audio_details">Audio details</string>
+    <string name="speed_default">1x</string>
+    <string name="playback_speed">Playback speed</string>
+    <string name="_0_5x">0.5x</string>
+    <string name="_0_75x">0.75x</string>
+    <string name="_1x">1x</string>
+    <string name="_1_25x">1.25x</string>
+    <string name="_1_5x">1.5x</string>
+    <string name="close">Close</string>
 </resources>

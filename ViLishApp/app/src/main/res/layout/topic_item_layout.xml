@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/topicItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="@dimen/xx_sm"
+    android:layout_marginTop="@dimen/xx_sm"
+    android:background="@drawable/card_bg"
+    android:paddingHorizontal="@dimen/x_sm"
+    android:paddingVertical="@dimen/md">
+
+    <ImageView
+        android:id="@+id/topicImage"
+        android:layout_width="@dimen/xx_lg"
+        android:layout_height="@dimen/xx_lg"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:url="" />
+
+    <TextView
+        android:id="@+id/topicName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_sm"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:text="@string/topic_name"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="@dimen/md_txt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topicImage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

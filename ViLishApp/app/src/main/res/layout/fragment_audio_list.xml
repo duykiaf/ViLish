@@ -1,14 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.AudioListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <include
+        android:id="@+id/appBarFragment"
+        layout="@layout/fragment_app_bar"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/noDataTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_md"
+        android:text="@string/no_data"
+        android:textAlignment="center"
+        android:textSize="@dimen/md_txt"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
+
+    <EditText
+        android:id="@+id/searchEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/xx_sm"
+        android:layout_marginTop="@dimen/xx_sm"
+        android:background="@drawable/card_bg"
+        android:hint="@string/search"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:padding="@dimen/md"
+        android:textColor="@color/black"
+        android:textColorHint="@color/primaryColor"
+        android:textSize="@dimen/md_txt"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
+
+    <ImageView
+        android:id="@+id/closeSearchLayout"
+        android:layout_width="@dimen/x_md"
+        android:layout_height="@dimen/x_md"
+        android:layout_marginEnd="@dimen/xx_sm"
+        android:background="@drawable/button_bg"
+        android:contentDescription="@string/app_name"
+        android:src="@drawable/close_ic"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/searchEdt"
+        app:layout_constraintEnd_toEndOf="@id/searchEdt"
+        app:layout_constraintTop_toTopOf="@id/searchEdt" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/audiosRcv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:paddingVertical="@dimen/x_sm"
+        app:layout_constraintBottom_toTopOf="@id/audioControlLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchEdt"
+        tools:listitem="@layout/audio_item_layout" />
+
+    <!--    <ImageView-->
+    <!--        android:id="@+id/goToTopImageView"-->
+    <!--        android:layout_width="@dimen/xxx_md"-->
+    <!--        android:layout_height="@dimen/xxx_md"-->
+    <!--        android:layout_marginEnd="11dp"-->
+    <!--        android:layout_marginBottom="11dp"-->
+    <!--        android:background="@drawable/blue_btn_background"-->
+    <!--        android:contentDescription="@string/app_name"-->
+    <!--        android:padding="@dimen/padding_10dp"-->
+    <!--        android:src="@drawable/ic_arrow_upward"-->
+    <!--        app:layout_constraintBottom_toTopOf="@id/audioControlLayout"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:tint="@color/white" />-->
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/audioControlLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/controls_wrapper_background"
+        android:paddingHorizontal="@dimen/md"
+        android:paddingVertical="@dimen/x_sm"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints">
+
+        <TextView
+            android:id="@+id/audioTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/x_sm"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="@string/audio_title"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/x_md_txt"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/previousIcon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/previousIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/skip_previous_ic"
+            app:layout_constraintBottom_toBottomOf="@id/audioTitle"
+            app:layout_constraintEnd_toStartOf="@id/playOrPauseIcon"
+            app:layout_constraintStart_toEndOf="@id/audioTitle"
+            app:layout_constraintTop_toTopOf="@id/audioTitle"
+            app:tint="@color/primaryColor" />
+
+        <ImageView
+            android:id="@+id/playOrPauseIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/play_icon"
+            android:src="@drawable/play_circle_blue_outline_ic"
+            app:layout_constraintBottom_toBottomOf="@id/previousIcon"
+            app:layout_constraintEnd_toStartOf="@id/nextIcon"
+            app:layout_constraintStart_toEndOf="@id/previousIcon"
+            app:layout_constraintTop_toTopOf="@id/previousIcon"
+            app:tint="@color/primaryColor" />
+
+        <ImageView
+            android:id="@+id/nextIcon"
+            android:layout_width="@dimen/lg"
+            android:layout_height="@dimen/lg"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/skip_next_ic"
+            app:layout_constraintBottom_toBottomOf="@id/previousIcon"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/playOrPauseIcon"
+            app:layout_constraintTop_toTopOf="@id/previousIcon"
+            app:tint="@color/primaryColor" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

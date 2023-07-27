@@ -1,14 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.TopicsListFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <include
+        android:id="@+id/appBarFragment"
+        layout="@layout/fragment_app_bar"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/noDataTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_md"
+        android:text="@string/no_data"
+        android:textAlignment="center"
+        android:textSize="@dimen/md_txt"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
+
+    <EditText
+        android:id="@+id/searchEdt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/xx_sm"
+        android:layout_marginVertical="@dimen/x_md"
+        android:background="@drawable/card_bg"
+        android:hint="@string/search"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:padding="@dimen/md"
+        android:textColor="@color/black"
+        android:textColorHint="@color/primaryColor"
+        android:textSize="@dimen/md_txt"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
+
+    <ImageView
+        android:id="@+id/closeSearchLayout"
+        android:layout_width="@dimen/x_md"
+        android:layout_height="@dimen/x_md"
+        android:layout_marginEnd="@dimen/xx_sm"
+        android:background="@drawable/button_bg"
+        android:src="@drawable/close_ic"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/searchEdt"
+        app:layout_constraintEnd_toEndOf="@id/searchEdt"
+        app:layout_constraintTop_toTopOf="@id/searchEdt" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/topicsRcv"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="14dp"
+        android:clipToPadding="false"
+        android:paddingStart="0dp"
+        android:paddingEnd="@dimen/xx_sm"
+        android:paddingBottom="@dimen/xx_sm"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchEdt"
+        tools:listitem="@layout/topic_item_layout" />
+
+<!--    <ImageView-->
+<!--        android:id="@+id/goToTopImageView"-->
+<!--        android:layout_width="@dimen/xxx_md"-->
+<!--        android:layout_height="@dimen/xxx_md"-->
+<!--        android:layout_marginEnd="11dp"-->
+<!--        android:layout_marginBottom="@dimen/x_md"-->
+<!--        android:background="@drawable/blue_btn_background"-->
+<!--        android:padding="@dimen/x_sm"-->
+<!--        android:src="@drawable/arrow_back_ic"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:tint="@color/white" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/playbackSpeedDialog"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:layout_marginHorizontal="@dimen/xx_sm"
+    android:background="@drawable/button_bg"
+    android:padding="@dimen/md">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/playback_speed"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="@dimen/x_md_txt"
+        android:textStyle="bold"
+        tools:ignore="MissingConstraints" />
+
+    <RadioGroup
+        android:id="@+id/playbackSpeedRG"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_md"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/dialogTitle">
+
+        <RadioButton
+            style="@style/RadioButtonStyle"
+            android:text="@string/_0_5x" />
+
+        <RadioButton
+            style="@style/RadioButtonStyle"
+            android:text="@string/_0_75x" />
+
+        <RadioButton
+            android:id="@+id/radioCheckedDefault"
+            style="@style/RadioButtonStyle"
+            android:text="@string/_1x" />
+
+        <RadioButton
+            style="@style/RadioButtonStyle"
+            android:text="@string/_1_25x" />
+
+        <RadioButton
+            style="@style/RadioButtonStyle"
+            android:text="@string/_1_5x" />
+
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/closeBtn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/xxx_md"
+        android:layout_marginTop="@dimen/x_md"
+        android:backgroundTint="@color/secondary"
+        android:text="@string/close"
+        android:textAllCaps="false"
+        android:textColor="@color/black"
+        android:textSize="@dimen/md_txt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/playbackSpeedRG"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

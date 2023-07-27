@@ -1,14 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/primaryColor"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".ui.SplashScreenFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/xxx_lg"
+        android:src="@drawable/elife_logo" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/vi_lish"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/xx_md_txt"
+        android:textStyle="italic|bold" />
+
+    <TextView
+        android:id="@+id/slogan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_sm"
+        android:text="@string/slogan"
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/x_md_txt"
+        android:textStyle="italic|bold" />
+
+    <Button
+        android:id="@+id/startBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/x_md"
+        android:backgroundTint="@color/white"
+        android:text="@string/start"
+        android:textAllCaps="false"
+        android:textColor="@color/primaryColor"
+        android:textSize="@dimen/sm_txt"
+        app:cornerRadius="@dimen/xx_sm" />
+
+</LinearLayout>
