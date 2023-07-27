@@ -1,14 +1,234 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".ui.CreateOrUpdateAudioFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <include
+        android:id="@+id/appBarFragment"
+        layout="@layout/fragment_app_bar" />
 
-</FrameLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/xx_sm">
+
+            <TextView
+                android:id="@+id/audioTitleLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/xx_sm"
+                android:layout_marginTop="@dimen/md"
+                android:text="@string/title"
+                android:textColor="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="MissingConstraints" />
+
+            <EditText
+                android:id="@+id/titleEdt"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/lg"
+                android:layout_marginTop="@dimen/sm"
+                android:background="@drawable/blue_border_bg"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:paddingHorizontal="@dimen/xx_sm"
+                android:textColor="@color/black"
+                android:textSize="@dimen/heading_4"
+                app:layout_constraintTop_toBottomOf="@id/audioTitleLabel" />
+
+            <ImageView
+                android:id="@+id/uploadAudioBtn"
+                android:layout_width="@dimen/xx_lg"
+                android:layout_height="@dimen/xx_lg"
+                android:layout_marginTop="@dimen/md"
+                android:background="@drawable/blue_border_bg"
+                android:padding="@dimen/x_sm"
+                android:src="@drawable/audio_file_ic"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/titleEdt"
+                tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:id="@+id/clickToAddAudioTxt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/click_to_add_audio"
+                android:textColor="@color/primaryColor"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/uploadAudioBtn" />
+
+            <EditText
+                android:id="@+id/fileNamePreview"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/lg"
+                android:layout_marginStart="@dimen/xx_sm"
+                android:backgroundTint="@color/primaryColor"
+                android:enabled="false"
+                android:hint="@string/file_name"
+                android:textColor="@color/black"
+                android:textColorHint="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                app:layout_constraintBottom_toBottomOf="@id/uploadAudioBtn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/uploadAudioBtn"
+                app:layout_constraintTop_toTopOf="@id/uploadAudioBtn" />
+
+            <TextView
+                android:id="@+id/audioLyricsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/xx_sm"
+                android:layout_marginTop="@dimen/md"
+                android:text="@string/lyrics"
+                android:textColor="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/clickToAddAudioTxt"
+                tools:ignore="MissingConstraints" />
+
+            <EditText
+                android:id="@+id/lyricsEdt"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginTop="@dimen/sm"
+                android:background="@drawable/blue_border_bg"
+                android:gravity="start"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                android:paddingHorizontal="@dimen/xx_sm"
+                android:paddingTop="@dimen/xx_sm"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="vertical"
+                android:text="@{AudioViewModel.audioLyrics}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/heading_4"
+                app:layout_constraintTop_toBottomOf="@id/audioLyricsLabel"
+                tools:layout_editor_absoluteX="34dp" />
+
+            <TextView
+                android:id="@+id/audioTranslationsLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/xx_sm"
+                android:layout_marginTop="@dimen/md"
+                android:text="@string/translations"
+                android:textColor="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/lyricsEdt"
+                tools:ignore="MissingConstraints" />
+
+            <EditText
+                android:id="@+id/translationsEdt"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginTop="@dimen/sm"
+                android:background="@drawable/blue_border_bg"
+                android:gravity="start"
+                android:imeOptions="actionDone"
+                android:inputType="textMultiLine"
+                android:paddingHorizontal="@dimen/xx_sm"
+                android:paddingTop="@dimen/xx_sm"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="vertical"
+                android:text="@{AudioViewModel.audioLyrics}"
+                android:textColor="@color/black"
+                android:textSize="@dimen/heading_4"
+                app:layout_constraintTop_toBottomOf="@id/audioTranslationsLabel" />
+
+            <TextView
+                android:id="@+id/selectTopicLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/md"
+                android:text="@string/select_topic"
+                android:textColor="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/translationsEdt" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/topicsSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/lg"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/blue_border_bg"
+                android:paddingHorizontal="@dimen/sm"
+                android:textSize="@dimen/heading_3"
+                app:layout_constraintTop_toBottomOf="@id/selectTopicLabel" />
+
+            <TextView
+                android:id="@+id/selectStatusLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/md"
+                android:text="@string/select_status"
+                android:textColor="@color/primaryColor"
+                android:textSize="@dimen/heading_4"
+                android:textStyle="bold"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/topicsSpinner" />
+
+            <androidx.appcompat.widget.AppCompatSpinner
+                android:id="@+id/statusSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/lg"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/blue_border_bg"
+                android:paddingHorizontal="@dimen/sm"
+                android:textSize="@dimen/heading_3"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/selectStatusLabel" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/saveBtn"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/lg"
+                android:layout_marginVertical="@dimen/md"
+                app:cardBackgroundColor="@color/primaryColor"
+                app:cardCornerRadius="@dimen/x_sm"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/statusSpinner">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        android:layout_width="@dimen/md"
+                        android:layout_height="@dimen/md"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="@dimen/xx_sm"
+                        android:layout_toLeftOf="@id/saveText"
+                        android:visibility="gone" />
+
+                    <TextView
+                        android:id="@+id/saveText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="@string/save"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/heading_3"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+</LinearLayout>

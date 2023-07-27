@@ -1,3 +1,32 @@
 <resources>
     <string name="app_name">Admin</string>
+    <string name="change_password">Change password</string>
+    <string name="logout">Logout</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="welcome_back">Welcome back!</string>
+    <string name="sign_in">Sign in</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="forgot_pwd_note">Enter your user account\'s verified email address and we will send you a password reset link.</string>
+    <string name="reset_pwd">Reset password</string>
+    <string name="back">Back</string>
+    <string name="old_pwd">Old password</string>
+    <string name="new_pwd">New password</string>
+    <string name="confirm_new_pwd">Confirm new password</string>
+    <string name="save">Save</string>
+    <string name="item_name">Item name</string>
+    <string name="search">Search</string>
+    <string name="add_new">Add new</string>
+    <string name="name">Name:</string>
+    <string name="click_to_add_image">(Click to add image)</string>
+    <string name="select_status">Status:</string>
+    <string name="title">Title:</string>
+    <string name="click_to_add_audio">(Click to add audio)</string>
+    <string name="file_name">File name</string>
+    <string name="lyrics">Lyrics:</string>
+    <string name="select_topic">Topic:</string>
+    <string name="translations">Translations:</string>
 </resources>

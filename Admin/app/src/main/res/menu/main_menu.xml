@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <item
+        android:id="@+id/changePasswordItem"
+        android:icon="@drawable/lock_reset_ic"
+        android:title="@string/change_password"
+        app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/logoutItem"
+        android:icon="@drawable/logout_ic"
+        android:title="@string/logout"
+        app:showAsAction="ifRoom" />
 </menu>
