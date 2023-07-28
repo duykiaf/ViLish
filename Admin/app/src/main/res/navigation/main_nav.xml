@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav"
+    app:startDestination="@id/signInFragment">
+
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="t3h.android.admin.ui.SignInFragment"
+        android:label="fragment_sign_in"
+        tools:layout="@layout/fragment_sign_in" >
+        <action
+            android:id="@+id/action_signInFragment_to_forgotPasswordFragment"
+            app:destination="@id/forgotPasswordFragment" />
+        <action
+            android:id="@+id/action_signInFragment_to_dashboardFragment"
+            app:destination="@id/dashboardFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/forgotPasswordFragment"
+        android:name="t3h.android.admin.ui.ForgotPasswordFragment"
+        android:label="fragment_forgot_password"
+        tools:layout="@layout/fragment_forgot_password" />
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="t3h.android.admin.ui.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" >
+        <action
+            android:id="@+id/action_dashboardFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_createOrUpdateTopicFragment"
+            app:destination="@id/createOrUpdateTopicFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_createOrUpdateAudioFragment"
+            app:destination="@id/createOrUpdateAudioFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/changePasswordFragment"
+        android:name="t3h.android.admin.ui.ChangePasswordFragment"
+        android:label="fragment_change_password"
+        tools:layout="@layout/fragment_change_password" />
+    <fragment
+        android:id="@+id/createOrUpdateTopicFragment"
+        android:name="t3h.android.admin.ui.CreateOrUpdateTopicFragment"
+        android:label="fragment_create_or_update_topic"
+        tools:layout="@layout/fragment_create_or_update_topic" >
+        <action
+            android:id="@+id/action_createOrUpdateTopicFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/createOrUpdateAudioFragment"
+        android:name="t3h.android.admin.ui.CreateOrUpdateAudioFragment"
+        android:label="fragment_create_or_update_audio"
+        tools:layout="@layout/fragment_create_or_update_audio" >
+        <action
+            android:id="@+id/action_createOrUpdateAudioFragment_to_changePasswordFragment"
+            app:destination="@id/changePasswordFragment" />
+    </fragment>
+</navigation>
