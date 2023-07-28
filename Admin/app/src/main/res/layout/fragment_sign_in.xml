@@ -49,6 +49,7 @@
         android:layout_height="@dimen/lg"
         android:layout_marginTop="@dimen/md"
         android:background="@drawable/blue_border_bg"
+        android:drawableEnd="@drawable/eye_crossed_ic"
         android:hint="@string/password"
         android:imeOptions="actionDone"
         android:inputType="textPassword"
