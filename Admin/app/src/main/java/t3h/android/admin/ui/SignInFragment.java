@@ -84,6 +84,8 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
                     }
                     return true; // Consumed the touch event
                 }
+            } else {
+                binding.passwordEdt.requestFocus();
             }
             return false; // Allow other touch events to be processed
         });

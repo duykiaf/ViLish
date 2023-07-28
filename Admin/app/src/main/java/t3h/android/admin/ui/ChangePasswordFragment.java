@@ -108,6 +108,8 @@ public class ChangePasswordFragment extends Fragment {
                     }
                     return true; // Consumed the touch event
                 }
+            } else {
+                edt.requestFocus();
             }
             return false; // Allow other touch events to be processed
         });
