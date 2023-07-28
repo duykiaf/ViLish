@@ -93,7 +93,7 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
         email = binding.emailEdt.getText().toString().trim();
         password = binding.passwordEdt.getText().toString();
         if (email.isEmpty() || password.isEmpty()) {
-            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
         } else {
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
@@ -102,7 +102,7 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
                 if (task.isSuccessful()) {
                     navController.navigate(R.id.action_signInFragment_to_dashboardFragment);
                 } else {
-                    Toast.makeText(requireActivity(), AppConstant.SIGN_FAILED, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireActivity(), AppConstant.SIGN_FAILED, Toast.LENGTH_LONG).show();
                 }
             });
         }
