@@ -1,5 +1,6 @@
 package t3h.android.admin.ui;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -21,6 +22,7 @@ import t3h.android.admin.helper.FirebaseAuthHelper;
 public class CreateOrUpdateTopicFragment extends Fragment {
     private FragmentCreateOrUpdateTopicBinding binding;
     private NavController navController;
+    private boolean isUpdateView = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,11 +35,16 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
+        isUpdateView = requireArguments().getBoolean(AppConstant.IS_UPDATE);
         initTopAppBar();
     }
 
     private void initTopAppBar() {
-        binding.appBarFragment.topAppBar.setTitle(AppConstant.CREATE_TOPIC);
+        if (isUpdateView) {
+            binding.appBarFragment.topAppBar.setTitle(AppConstant.UPDATE_TOPIC);
+        } else {
+            binding.appBarFragment.topAppBar.setTitle(AppConstant.CREATE_TOPIC);
+        }
         binding.appBarFragment.topAppBar.setNavigationIcon(R.drawable.arrow_back_ic);
         binding.appBarFragment.topAppBar.setNavigationIconTint(Color.WHITE);
     }
@@ -45,16 +52,17 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        onBackPressed();
+        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
     }
 
     private void onBackPressed() {
         if (!binding.appBarFragment.topAppBar.getTitle().equals(AppConstant.DASHBOARD)) {
-            binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+            requireActivity().onBackPressed();
         }
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void onMenuItemClick() {
         binding.appBarFragment.topAppBar.setOnMenuItemClickListener(menu -> {
             switch (menu.getItemId()) {
