@@ -1,5 +1,6 @@
 package t3h.android.admin.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -12,8 +13,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import t3h.android.admin.R;
+import t3h.android.admin.adapter.DashboardAdapter;
 import t3h.android.admin.databinding.FragmentDashboardBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
@@ -24,6 +30,9 @@ public class DashboardFragment extends Fragment implements OnBackPressedListener
     private Toast toast;
     private FragmentDashboardBinding binding;
     private NavController navController;
+    private DashboardAdapter dashboardAdapter;
+    private String[] tabLayoutNames;
+    private Bundle bundle = new Bundle();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,6 +46,7 @@ public class DashboardFragment extends Fragment implements OnBackPressedListener
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         initTopAppBar();
+        initPagerUI();
     }
 
     private void initTopAppBar() {
@@ -44,19 +54,49 @@ public class DashboardFragment extends Fragment implements OnBackPressedListener
         binding.appBarFragment.topAppBar.setNavigationIcon(R.drawable.dashboard_ic);
     }
 
+    private void initPagerUI() {
+        dashboardAdapter = new DashboardAdapter(this);
+        binding.pager.setAdapter(dashboardAdapter);
+        tabLayoutNames = getResources().getStringArray(R.array.tabLayoutNames);
+        TabLayout tabLayout = binding.tabLayout;
+        new TabLayoutMediator(tabLayout, binding.pager,
+                (tab, position) -> tab.setText(tabLayoutNames[position])
+        ).attach();
+
+        binding.pager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                if (position == 0) {
+                    initListByPager(AppConstant.ADD_NEW_TOPIC, AppConstant.SEARCH_TOPIC);
+                } else {
+                    initListByPager(AppConstant.ADD_NEW_AUDIO, AppConstant.SEARCH_AUDIO);
+                }
+            }
+        });
+    }
+
+    private void initListByPager(String addNewTxt, String searchTxt) {
+        binding.addNewImageView.setContentDescription(addNewTxt);
+        binding.searchImageView.setContentDescription(searchTxt);
+        binding.searchEdt.setHint(searchTxt);
+    }
+
     @Override
     public void onResume() {
         super.onResume();
-        onBackPressed();
+        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
+        binding.addNewImageView.setOnClickListener(v -> onNavigateToCreateFragment());
     }
 
     private void onBackPressed() {
         if (!binding.appBarFragment.topAppBar.getTitle().equals(AppConstant.DASHBOARD)) {
-            binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+            requireActivity().onBackPressed();
         }
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void onMenuItemClick() {
         binding.appBarFragment.topAppBar.setOnMenuItemClickListener(menu -> {
             switch (menu.getItemId()) {
@@ -70,6 +110,16 @@ public class DashboardFragment extends Fragment implements OnBackPressedListener
             }
             return false;
         });
+    }
+
+    private void onNavigateToCreateFragment() {
+        bundle.putBoolean(AppConstant.IS_UPDATE, false);
+        String getContentDesc = binding.addNewImageView.getContentDescription().toString();
+        if (getContentDesc.equalsIgnoreCase(AppConstant.ADD_NEW_TOPIC)) {
+            navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateTopicFragment, bundle);
+        } else {
+            navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateAudioFragment, bundle);
+        }
     }
 
     @Override
