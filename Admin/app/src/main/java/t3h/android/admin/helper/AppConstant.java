@@ -11,9 +11,13 @@ public class AppConstant {
     public static final String UPDATE_AUDIO = "Update audio";
     public static final String EMAIL_MUST_NOT_EMPTY = "Please enter the email you registered your account with";
     public static final String CHECK_EMAIL_MESS = "Check your email, please!";
-
     public static final String RESET_PWD_FAILED = "Reset password failed. Please try again";
     public static final String CONFIRM_PWD_NOT_MATCH = "Confirm password does not match new password";
     public static final String CHANGE_PWD_SUCCESS = "Change password successfully! Please sign in again";
     public static final String CHANGE_PWD_FAILED = "Change password failed. Please try again";
+    public static final String ADD_NEW_TOPIC = "Add new topic";
+    public static final String SEARCH_TOPIC = "Search topic";
+    public static final String ADD_NEW_AUDIO = "Add new audio";
+    public static final String SEARCH_AUDIO = "Search audio";
+    public static final String IS_UPDATE = "isUpdate";
 }
