@@ -4,8 +4,10 @@ import androidx.annotation.Nullable;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.io.Serializable;
+
 @IgnoreExtraProperties
-public class Topic {
+public class Topic implements Serializable {
     private String id;
     private String name;
     private String imagePath;
