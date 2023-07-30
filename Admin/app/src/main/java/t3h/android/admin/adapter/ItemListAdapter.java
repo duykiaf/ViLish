@@ -27,7 +27,6 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
 
     public void setData(List<T> data) {
         newItemList = data;
-//        notifyDataSetChanged();
     }
 
     public void bindAdapter(OnBindViewListener<T> listener) {
