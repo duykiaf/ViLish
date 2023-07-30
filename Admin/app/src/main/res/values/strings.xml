@@ -29,4 +29,5 @@
     <string name="lyrics">Lyrics:</string>
     <string name="select_topic">Topic:</string>
     <string name="translations">Translations:</string>
+    <string name="obligatory">(*)</string>
 </resources>
