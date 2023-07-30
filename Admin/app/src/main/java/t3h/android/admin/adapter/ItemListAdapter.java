@@ -33,6 +33,10 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
         onBindViewListener = listener;
     }
 
+    public void setOnItemClickListener(OnItemClickListener<T> listener) {
+        onItemClickListener = listener;
+    }
+
     @NonNull
     @Override
     public ItemViewHolder<T> onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

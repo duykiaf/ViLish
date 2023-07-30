@@ -9,6 +9,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.firebase.database.DataSnapshot;
@@ -36,6 +38,7 @@ public class ListFragment extends Fragment {
     private ItemListAdapter<Audio> audioAdapter = new ItemListAdapter<>();
     private List<Audio> audioList = new ArrayList<>();
     private Bundle bundle = new Bundle();
+    private NavController navController;
 
     public ListFragment() {
     }
@@ -55,6 +58,7 @@ public class ListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firebaseDatabase = FirebaseDatabase.getInstance();
+        navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         initItemList();
     }
 
@@ -105,6 +109,11 @@ public class ListFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        topicAdapter.setOnItemClickListener(topicItem -> {
+            bundle.putBoolean(AppConstant.IS_UPDATE, true);
+            bundle.putSerializable(AppConstant.TOPIC_INFO, topicItem);
+            navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateTopicFragment, bundle);
+        });
     }
 
     @Override
