@@ -26,6 +26,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/obligatory"
+        android:textColor="@color/dangerColor"
+        app:layout_constraintBottom_toBottomOf="@id/topicNameLabel"
+        app:layout_constraintStart_toEndOf="@id/topicNameLabel"
+        app:layout_constraintTop_toTopOf="@id/topicNameLabel" />
+
     <EditText
         android:id="@+id/nameEdt"
         android:layout_width="match_parent"
@@ -64,13 +73,23 @@
 
     <TextView
         android:id="@+id/clickToAddImageTxt"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/xx_sm"
         android:layout_marginTop="10dp"
         android:text="@string/click_to_add_image"
         android:textColor="@color/primaryColor"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/addImage" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/obligatory"
+        android:textColor="@color/dangerColor"
+        app:layout_constraintBottom_toBottomOf="@id/clickToAddImageTxt"
+        app:layout_constraintStart_toEndOf="@id/clickToAddImageTxt"
+        app:layout_constraintTop_toTopOf="@id/clickToAddImageTxt" />
 
     <TextView
         android:id="@+id/selectStatusLabel"

@@ -33,6 +33,15 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="MissingConstraints" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/obligatory"
+                android:textColor="@color/dangerColor"
+                app:layout_constraintBottom_toBottomOf="@id/audioTitleLabel"
+                app:layout_constraintStart_toEndOf="@id/audioTitleLabel"
+                app:layout_constraintTop_toTopOf="@id/audioTitleLabel" />
+
             <EditText
                 android:id="@+id/titleEdt"
                 android:layout_width="match_parent"
@@ -68,6 +77,15 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/uploadAudioBtn" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/obligatory"
+                android:textColor="@color/dangerColor"
+                app:layout_constraintBottom_toBottomOf="@id/clickToAddAudioTxt"
+                app:layout_constraintStart_toEndOf="@id/clickToAddAudioTxt"
+                app:layout_constraintTop_toTopOf="@id/clickToAddAudioTxt" />
+
             <EditText
                 android:id="@+id/fileNamePreview"
                 android:layout_width="0dp"
@@ -96,6 +114,15 @@
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/clickToAddAudioTxt"
                 tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/obligatory"
+                android:textColor="@color/dangerColor"
+                app:layout_constraintBottom_toBottomOf="@id/audioLyricsLabel"
+                app:layout_constraintStart_toEndOf="@id/audioLyricsLabel"
+                app:layout_constraintTop_toTopOf="@id/audioLyricsLabel" />
 
             <EditText
                 android:id="@+id/lyricsEdt"
@@ -128,6 +155,15 @@
                 android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/lyricsEdt"
                 tools:ignore="MissingConstraints" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/obligatory"
+                android:textColor="@color/dangerColor"
+                app:layout_constraintBottom_toBottomOf="@id/audioTranslationsLabel"
+                app:layout_constraintStart_toEndOf="@id/audioTranslationsLabel"
+                app:layout_constraintTop_toTopOf="@id/audioTranslationsLabel" />
 
             <EditText
                 android:id="@+id/translationsEdt"
