@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
@@ -35,6 +37,8 @@ import t3h.android.admin.databinding.FragmentCreateOrUpdateTopicBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
 import t3h.android.admin.helper.RandomStringGenerator;
+import t3h.android.admin.helper.StatusDropdownHelper;
+import t3h.android.admin.model.DropdownItem;
 import t3h.android.admin.model.Topic;
 
 public class CreateOrUpdateTopicFragment extends Fragment {
@@ -46,7 +50,7 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private Uri selectedImgUri;
     private String topicName, imageURL;
-    private Topic topic;
+    private Topic topic, alreadyAvailableTopic;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,37 +67,73 @@ public class CreateOrUpdateTopicFragment extends Fragment {
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         isUpdateView = requireArguments().getBoolean(AppConstant.IS_UPDATE);
         initTopAppBar();
-        activityResultLauncher =
-                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                        new ActivityResultCallback<ActivityResult>() {
-                            @Override
-                            public void onActivityResult(ActivityResult result) {
-                                if (result.getResultCode() == Activity.RESULT_OK) {
-                                    Intent data = result.getData();
-                                    if (data != null) {
-                                        selectedImgUri = data.getData();
-                                        Glide.with(requireActivity())
-                                                .load(selectedImgUri)
-                                                .centerCrop()
-                                                .placeholder(R.drawable.image_ic)
-                                                .error(R.drawable.broken_image_ic)
-                                                .into(binding.imagePreview);
-                                    }
-                                } else {
-                                    Toast.makeText(requireActivity(), AppConstant.NO_IMAGE_SELECTED, Toast.LENGTH_LONG).show();
-                                }
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            if (data != null) {
+                                selectedImgUri = data.getData();
+                                Glide.with(requireActivity())
+                                        .load(selectedImgUri)
+                                        .centerCrop()
+                                        .placeholder(R.drawable.image_ic)
+                                        .error(R.drawable.broken_image_ic)
+                                        .into(binding.imagePreview);
                             }
-                        });
+                        } else {
+                            Toast.makeText(requireActivity(), AppConstant.NO_IMAGE_SELECTED, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
 
     private void initTopAppBar() {
         if (isUpdateView) {
             binding.appBarFragment.topAppBar.setTitle(AppConstant.UPDATE_TOPIC);
+            if (requireArguments().getSerializable(AppConstant.TOPIC_INFO) != null) {
+                alreadyAvailableTopic = (Topic) requireArguments().getSerializable(AppConstant.TOPIC_INFO);
+                initUpdateUi();
+            }
         } else {
             binding.appBarFragment.topAppBar.setTitle(AppConstant.CREATE_TOPIC);
         }
         binding.appBarFragment.topAppBar.setNavigationIcon(R.drawable.arrow_back_ic);
         binding.appBarFragment.topAppBar.setNavigationIconTint(Color.WHITE);
+    }
+
+    private void initUpdateUi() {
+        binding.nameEdt.setText(alreadyAvailableTopic.getName());
+        Glide.with(requireActivity())
+                .load(alreadyAvailableTopic.getImagePath())
+                .centerCrop()
+                .placeholder(R.drawable.image_ic)
+                .error(R.drawable.broken_image_ic)
+                .into(binding.imagePreview);
+        initStatusDropdown();
+    }
+
+    private void initStatusDropdown() {
+        binding.selectStatusLabel.setVisibility(View.VISIBLE);
+        binding.statusSpinner.setVisibility(View.VISIBLE);
+        ArrayAdapter<DropdownItem> adapter = new ArrayAdapter<>(requireActivity(),
+                android.R.layout.simple_spinner_item, StatusDropdownHelper.statusDropdown());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.statusSpinner.setAdapter(adapter);
+        binding.statusSpinner.setSelection(alreadyAvailableTopic.getStatus());
+        binding.statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                DropdownItem item = (DropdownItem) adapterView.getSelectedItem();
+                Toast.makeText(requireActivity(), String.valueOf(item.getHiddenValue()), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override
