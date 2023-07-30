@@ -26,4 +26,5 @@ public class AppConstant {
     public static final String CREATE_TOPIC_FAILED = "Create failed";
     public static final String SAVED = "Saved";
     public static final String TOPICS = "Topics";
+    public static final String SYSTEM_ERROR = "System error. Please try again";
 }
