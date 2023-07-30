@@ -1,28 +1,52 @@
 package t3h.android.admin.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import t3h.android.admin.R;
 import t3h.android.admin.databinding.FragmentCreateOrUpdateTopicBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
+import t3h.android.admin.helper.RandomStringGenerator;
+import t3h.android.admin.model.Topic;
 
 public class CreateOrUpdateTopicFragment extends Fragment {
     private FragmentCreateOrUpdateTopicBinding binding;
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
     private NavController navController;
     private boolean isUpdateView = false;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private Uri selectedImgUri;
+    private String topicName, imageURL;
+    private Topic topic;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,9 +58,32 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        database = FirebaseDatabase.getInstance();
+        databaseReference = database.getReference();
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         isUpdateView = requireArguments().getBoolean(AppConstant.IS_UPDATE);
         initTopAppBar();
+        activityResultLauncher =
+                registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                        new ActivityResultCallback<ActivityResult>() {
+                            @Override
+                            public void onActivityResult(ActivityResult result) {
+                                if (result.getResultCode() == Activity.RESULT_OK) {
+                                    Intent data = result.getData();
+                                    if (data != null) {
+                                        selectedImgUri = data.getData();
+                                        Glide.with(requireActivity())
+                                                .load(selectedImgUri)
+                                                .centerCrop()
+                                                .placeholder(R.drawable.image_ic)
+                                                .error(R.drawable.broken_image_ic)
+                                                .into(binding.imagePreview);
+                                    }
+                                } else {
+                                    Toast.makeText(requireActivity(), AppConstant.NO_IMAGE_SELECTED, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
     }
 
     private void initTopAppBar() {
@@ -54,6 +101,8 @@ public class CreateOrUpdateTopicFragment extends Fragment {
         super.onResume();
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
+        binding.addImage.setOnClickListener(v -> handleSelectedImage());
+        binding.saveBtn.setOnClickListener(v -> saveData());
     }
 
     private void onBackPressed() {
@@ -76,6 +125,58 @@ public class CreateOrUpdateTopicFragment extends Fragment {
             }
             return false;
         });
+    }
+
+    private void handleSelectedImage() {
+        Intent imagePicker = new Intent(Intent.ACTION_PICK);
+        imagePicker.setType("image/*");
+        activityResultLauncher.launch(imagePicker);
+    }
+
+    private void saveData() {
+        topicName = binding.nameEdt.getText().toString().trim();
+        if (topicName.isEmpty() || selectedImgUri == null) {
+            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+        } else {
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.IMG_STORAGE_NAME)
+                    .child(String.valueOf(System.currentTimeMillis()));
+            storageReference.putFile(selectedImgUri).addOnSuccessListener(taskSnapshot -> {
+                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!uriTask.isComplete()) ;
+                Uri urlImage = uriTask.getResult();
+                imageURL = urlImage.toString();
+                uploadData();
+                binding.progressBar.setVisibility(View.GONE);
+            }).addOnFailureListener(e -> {
+                binding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
+            });
+        }
+    }
+
+    private void uploadData() {
+        if (isUpdateView) {
+            Log.e("DNV", "update");
+        } else {
+            topic = new Topic(RandomStringGenerator.generateRandomString(), topicName, imageURL, 1);
+        }
+        databaseReference.child(AppConstant.TOPICS).child(topic.getId()).setValue(topic).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(requireActivity(), AppConstant.SAVED, Toast.LENGTH_LONG).show();
+                if (!isUpdateView) {
+                    resetForm();
+                } else {
+                    requireActivity().onBackPressed();
+                }
+            }
+        }).addOnFailureListener(e -> Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show());
+    }
+
+    private void resetForm() {
+        binding.nameEdt.setText("");
+        binding.imagePreview.setImageResource(R.drawable.image_ic);
     }
 
     @Override
