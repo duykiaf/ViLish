@@ -20,4 +20,10 @@ public class AppConstant {
     public static final String ADD_NEW_AUDIO = "Add new audio";
     public static final String SEARCH_AUDIO = "Search audio";
     public static final String IS_UPDATE = "isUpdate";
+    public static final String NO_IMAGE_SELECTED = "No image selected";
+    public static final String IMG_STORAGE_NAME = "Images";
+    public static final String AUDIO_STORAGE_NAME = "Audios";
+    public static final String CREATE_TOPIC_FAILED = "Create failed";
+    public static final String SAVED = "Saved";
+    public static final String TOPICS = "Topics";
 }
