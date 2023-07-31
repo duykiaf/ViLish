@@ -12,6 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import t3h.android.admin.R;
 import t3h.android.admin.databinding.FragmentForgotPasswordBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
@@ -30,13 +31,14 @@ public class ForgotPasswordFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.submitBtnLayout.submitText.setText(getResources().getString(R.string.send));
     }
 
     @Override
     public void onResume() {
         super.onResume();
         binding.backTxt.setOnClickListener(v -> requireActivity().onBackPressed());
-        binding.resetPwdBtn.setOnClickListener(v -> resetPassword());
+        binding.submitBtnLayout.submitBtn.setOnClickListener(v -> resetPassword());
     }
 
     private void resetPassword() {
@@ -44,10 +46,10 @@ public class ForgotPasswordFragment extends Fragment {
         if (email.isEmpty()) {
             Toast.makeText(requireActivity(), AppConstant.EMAIL_MUST_NOT_EMPTY, Toast.LENGTH_LONG).show();
         } else {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            binding.submitBtnLayout.progressBar.setVisibility(View.VISIBLE);
+            binding.submitBtnLayout.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
             FirebaseAuthHelper.forgotPwd(email, task -> {
-                binding.progressBar.setVisibility(View.GONE);
+                binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     Toast.makeText(requireActivity(), AppConstant.CHECK_EMAIL_MESS, Toast.LENGTH_LONG).show();
                 } else {

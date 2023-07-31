@@ -1,22 +1,16 @@
 package t3h.android.admin.ui;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -36,7 +30,6 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
     private String email, password;
     private boolean backPressedOnce = false;
     private Toast toast;
-    private Drawable drawableEnd;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -49,6 +42,7 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        binding.submitBtnLayout.submitText.setText(getResources().getString(R.string.sign_in));
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         if (firebaseUser != null) {
             navController.navigate(R.id.action_signInFragment_to_dashboardFragment);
@@ -61,34 +55,8 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
         super.onResume();
         if (firebaseUser == null) {
             binding.forgotPwdTxt.setOnClickListener(v -> navController.navigate(R.id.action_signInFragment_to_forgotPasswordFragment));
-            binding.signInBtn.setOnClickListener(v -> signIn());
-            setShowOrHidePassword();
+            binding.submitBtnLayout.submitBtn.setOnClickListener(v -> signIn());
         }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private void setShowOrHidePassword() {
-        binding.passwordEdt.setOnTouchListener((view, motionEvent) -> {
-            if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                // Check if the click is inside the drawableEnd bounds
-                if (motionEvent.getRawX() >= (binding.passwordEdt.getRight() - binding.passwordEdt.getCompoundDrawables()[2].getBounds().width())
-                        - binding.passwordEdt.getPaddingEnd()) {
-                    if (binding.passwordEdt.getTransformationMethod().equals(HideReturnsTransformationMethod.getInstance())) {
-                        binding.passwordEdt.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                        drawableEnd = ContextCompat.getDrawable(requireActivity(), R.drawable.eye_crossed_ic);
-                        binding.passwordEdt.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawableEnd, null);
-                    } else {
-                        binding.passwordEdt.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                        drawableEnd = ContextCompat.getDrawable(requireActivity(), R.drawable.eye_ic);
-                        binding.passwordEdt.setCompoundDrawablesRelativeWithIntrinsicBounds(null, null, drawableEnd, null);
-                    }
-                    return true; // Consumed the touch event
-                }
-            } else {
-                binding.passwordEdt.requestFocus();
-            }
-            return false; // Allow other touch events to be processed
-        });
     }
 
     private void signIn() {
@@ -97,10 +65,10 @@ public class SignInFragment extends Fragment implements OnBackPressedListener {
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
         } else {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+            binding.submitBtnLayout.progressBar.setVisibility(View.VISIBLE);
+            binding.submitBtnLayout.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
             FirebaseAuthHelper.signIn(email, password, task -> {
-                binding.progressBar.setVisibility(View.GONE);
+                binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
                 if (task.isSuccessful()) {
                     navController.navigate(R.id.action_signInFragment_to_dashboardFragment);
                 } else {
