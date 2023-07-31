@@ -90,7 +90,6 @@ public class ListFragment extends Fragment {
                         topicList.add(model);
                     }
                 }
-                topicAdapter.setData(topicList);
                 topicAdapter.updateItemList(topicList);
             }
 
