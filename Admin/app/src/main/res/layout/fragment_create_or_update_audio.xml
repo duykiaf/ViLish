@@ -22,38 +22,34 @@
 
             <TextView
                 android:id="@+id/audioTitleLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/xx_sm"
-                android:layout_marginTop="@dimen/md"
+                style="@style/TextLabelStyle"
                 android:text="@string/title"
-                android:textColor="@color/primaryColor"
-                android:textSize="@dimen/heading_4"
-                android:textStyle="bold"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:ignore="MissingConstraints" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/obligatory"
-                android:textColor="@color/dangerColor"
+                style="@style/Obligatory"
                 app:layout_constraintBottom_toBottomOf="@id/audioTitleLabel"
                 app:layout_constraintStart_toEndOf="@id/audioTitleLabel"
                 app:layout_constraintTop_toTopOf="@id/audioTitleLabel" />
 
-            <EditText
-                android:id="@+id/titleEdt"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/lg"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/titleEdtLayout"
+                style="@style/TextInputLayoutStyle"
                 android:layout_marginTop="@dimen/sm"
-                android:background="@drawable/blue_border_bg"
-                android:imeOptions="actionDone"
-                android:inputType="text"
-                android:paddingHorizontal="@dimen/xx_sm"
-                android:textColor="@color/black"
-                android:textSize="@dimen/heading_4"
-                app:layout_constraintTop_toBottomOf="@id/audioTitleLabel" />
+                app:counterEnabled="true"
+                app:counterMaxLength="50"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/audioTitleLabel">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/titleEdt"
+                    style="@style/EdtStyle"
+                    android:imeOptions="actionDone"
+                    android:inputType="text"
+                    android:maxLength="50" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
                 android:id="@+id/uploadAudioBtn"
@@ -64,7 +60,7 @@
                 android:padding="@dimen/x_sm"
                 android:src="@drawable/audio_file_ic"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleEdt"
+                app:layout_constraintTop_toBottomOf="@id/titleEdtLayout"
                 tools:ignore="MissingConstraints" />
 
             <TextView
@@ -78,10 +74,7 @@
                 app:layout_constraintTop_toBottomOf="@id/uploadAudioBtn" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/obligatory"
-                android:textColor="@color/dangerColor"
+                style="@style/Obligatory"
                 app:layout_constraintBottom_toBottomOf="@id/clickToAddAudioTxt"
                 app:layout_constraintStart_toEndOf="@id/clickToAddAudioTxt"
                 app:layout_constraintTop_toTopOf="@id/clickToAddAudioTxt" />
@@ -104,166 +97,75 @@
 
             <TextView
                 android:id="@+id/audioLyricsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/xx_sm"
-                android:layout_marginTop="@dimen/md"
+                style="@style/TextLabelStyle"
                 android:text="@string/lyrics"
-                android:textColor="@color/primaryColor"
-                android:textSize="@dimen/heading_4"
-                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/clickToAddAudioTxt"
                 tools:ignore="MissingConstraints" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/obligatory"
-                android:textColor="@color/dangerColor"
+                style="@style/Obligatory"
                 app:layout_constraintBottom_toBottomOf="@id/audioLyricsLabel"
                 app:layout_constraintStart_toEndOf="@id/audioLyricsLabel"
                 app:layout_constraintTop_toTopOf="@id/audioLyricsLabel" />
 
             <EditText
                 android:id="@+id/lyricsEdt"
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginTop="@dimen/sm"
-                android:background="@drawable/blue_border_bg"
-                android:gravity="start"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
+                style="@style/TextMultilineStyle"
                 android:paddingHorizontal="@dimen/xx_sm"
-                android:paddingTop="@dimen/xx_sm"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbars="vertical"
-                android:text="@{AudioViewModel.audioLyrics}"
-                android:textColor="@color/black"
-                android:textSize="@dimen/heading_4"
                 app:layout_constraintTop_toBottomOf="@id/audioLyricsLabel"
-                tools:layout_editor_absoluteX="34dp" />
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/audioTranslationsLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/xx_sm"
-                android:layout_marginTop="@dimen/md"
+                style="@style/TextLabelStyle"
                 android:text="@string/translations"
-                android:textColor="@color/primaryColor"
-                android:textSize="@dimen/heading_4"
-                android:textStyle="bold"
                 app:layout_constraintTop_toBottomOf="@id/lyricsEdt"
                 tools:ignore="MissingConstraints" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/obligatory"
-                android:textColor="@color/dangerColor"
+                style="@style/Obligatory"
                 app:layout_constraintBottom_toBottomOf="@id/audioTranslationsLabel"
                 app:layout_constraintStart_toEndOf="@id/audioTranslationsLabel"
                 app:layout_constraintTop_toTopOf="@id/audioTranslationsLabel" />
 
             <EditText
                 android:id="@+id/translationsEdt"
-                android:layout_width="match_parent"
-                android:layout_height="400dp"
-                android:layout_marginTop="@dimen/sm"
-                android:background="@drawable/blue_border_bg"
-                android:gravity="start"
-                android:imeOptions="actionDone"
-                android:inputType="textMultiLine"
+                style="@style/TextMultilineStyle"
                 android:paddingHorizontal="@dimen/xx_sm"
-                android:paddingTop="@dimen/xx_sm"
-                android:scrollbarStyle="insideOverlay"
-                android:scrollbars="vertical"
-                android:text="@{AudioViewModel.audioLyrics}"
-                android:textColor="@color/black"
-                android:textSize="@dimen/heading_4"
-                app:layout_constraintTop_toBottomOf="@id/audioTranslationsLabel" />
+                app:layout_constraintTop_toBottomOf="@id/audioTranslationsLabel"
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/selectTopicLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/md"
+                style="@style/TextLabelStyle"
                 android:text="@string/select_topic"
-                android:textColor="@color/primaryColor"
-                android:textSize="@dimen/heading_4"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/translationsEdt" />
+                app:layout_constraintTop_toBottomOf="@id/translationsEdt"
+                tools:ignore="MissingConstraints" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/topicsSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/lg"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/blue_border_bg"
-                android:paddingHorizontal="@dimen/sm"
-                android:textSize="@dimen/heading_3"
-                app:layout_constraintTop_toBottomOf="@id/selectTopicLabel" />
+                style="@style/SpinnerStyle"
+                app:layout_constraintTop_toBottomOf="@id/selectTopicLabel"
+                tools:ignore="MissingConstraints" />
 
             <TextView
                 android:id="@+id/selectStatusLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/md"
+                style="@style/TextLabelStyle"
                 android:text="@string/select_status"
-                android:textColor="@color/primaryColor"
-                android:textSize="@dimen/heading_4"
-                android:textStyle="bold"
                 android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/topicsSpinner" />
+                app:layout_constraintTop_toBottomOf="@id/topicsSpinner"
+                tools:ignore="MissingConstraints" />
 
             <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/statusSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/lg"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/blue_border_bg"
-                android:paddingHorizontal="@dimen/sm"
-                android:textSize="@dimen/heading_3"
+                style="@style/SpinnerStyle"
                 android:visibility="gone"
-                app:layout_constraintTop_toBottomOf="@id/selectStatusLabel" />
+                app:layout_constraintTop_toBottomOf="@id/selectStatusLabel"
+                tools:ignore="MissingConstraints" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/saveBtn"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/lg"
-                android:layout_marginVertical="@dimen/md"
-                app:cardBackgroundColor="@color/primaryColor"
-                app:cardCornerRadius="@dimen/x_sm"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/statusSpinner">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ProgressBar
-                        android:id="@+id/progressBar"
-                        android:layout_width="@dimen/md"
-                        android:layout_height="@dimen/md"
-                        android:layout_centerVertical="true"
-                        android:layout_marginEnd="@dimen/xx_sm"
-                        android:layout_toLeftOf="@id/saveText"
-                        android:visibility="gone" />
-
-                    <TextView
-                        android:id="@+id/saveText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerInParent="true"
-                        android:text="@string/save"
-                        android:textColor="@color/white"
-                        android:textSize="@dimen/heading_3"
-                        android:textStyle="bold" />
-                </RelativeLayout>
-
-            </androidx.cardview.widget.CardView>
+            <include
+                android:id="@+id/submitBtnLayout"
+                layout="@layout/submit_btn_layout" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

@@ -1,6 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/submitBtn"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/lg"
+    android:layout_marginVertical="@dimen/md"
+    app:cardBackgroundColor="@color/primaryColor"
+    app:cardCornerRadius="@dimen/x_sm"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@+id/statusSpinner">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="@dimen/md"
+            android:layout_height="@dimen/md"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/xx_sm"
+            android:layout_toStartOf="@id/submitText"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/submitText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/save"
+            android:textColor="@color/white"
+            android:textSize="@dimen/heading_3"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

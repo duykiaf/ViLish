@@ -15,39 +15,35 @@
 
     <TextView
         android:id="@+id/topicNameLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/xx_sm"
-        android:layout_marginTop="@dimen/md"
+        style="@style/TextLabelStyle"
         android:text="@string/name"
-        android:textColor="@color/primaryColor"
-        android:textSize="@dimen/heading_4"
-        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/obligatory"
-        android:textColor="@color/dangerColor"
+        style="@style/Obligatory"
         app:layout_constraintBottom_toBottomOf="@id/topicNameLabel"
         app:layout_constraintStart_toEndOf="@id/topicNameLabel"
         app:layout_constraintTop_toTopOf="@id/topicNameLabel" />
 
-    <EditText
-        android:id="@+id/nameEdt"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lg"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/nameEdtLayout"
+        style="@style/TextInputLayoutStyle"
         android:layout_marginHorizontal="@dimen/xx_sm"
         android:layout_marginTop="@dimen/sm"
-        android:background="@drawable/blue_border_bg"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:paddingHorizontal="@dimen/xx_sm"
-        android:textColor="@color/black"
-        android:textSize="@dimen/heading_4"
-        app:layout_constraintTop_toBottomOf="@id/topicNameLabel" />
+        app:counterEnabled="true"
+        app:counterMaxLength="50"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topicNameLabel">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/nameEdt"
+            style="@style/EdtStyle"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="50" />
+    </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
         android:id="@+id/imagePreview"
@@ -57,7 +53,7 @@
         android:layout_marginEnd="@dimen/xx_sm"
         android:src="@drawable/image_ic"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nameEdt" />
+        app:layout_constraintTop_toBottomOf="@id/nameEdtLayout" />
 
     <ImageView
         android:id="@+id/addImage"
@@ -69,7 +65,7 @@
         android:padding="@dimen/x_sm"
         android:src="@drawable/image_ic"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/nameEdt" />
+        app:layout_constraintTop_toBottomOf="@id/nameEdtLayout" />
 
     <TextView
         android:id="@+id/clickToAddImageTxt"
@@ -83,39 +79,27 @@
         app:layout_constraintTop_toBottomOf="@id/addImage" />
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/obligatory"
-        android:textColor="@color/dangerColor"
+        style="@style/Obligatory"
         app:layout_constraintBottom_toBottomOf="@id/clickToAddImageTxt"
         app:layout_constraintStart_toEndOf="@id/clickToAddImageTxt"
         app:layout_constraintTop_toTopOf="@id/clickToAddImageTxt" />
 
     <TextView
         android:id="@+id/selectStatusLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/xx_sm"
-        android:layout_marginTop="@dimen/md"
+        style="@style/TextLabelStyle"
         android:text="@string/select_status"
-        android:textColor="@color/primaryColor"
-        android:textSize="@dimen/heading_4"
-        android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/clickToAddImageTxt" />
 
     <androidx.appcompat.widget.AppCompatSpinner
         android:id="@+id/statusSpinner"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lg"
+        style="@style/SpinnerStyle"
         android:layout_marginHorizontal="@dimen/xx_sm"
-        android:layout_marginTop="@dimen/sm"
-        android:background="@drawable/blue_border_bg"
-        android:paddingHorizontal="@dimen/sm"
-        android:textSize="@dimen/heading_3"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/selectStatusLabel" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/selectStatusLabel"
+        tools:ignore="MissingConstraints" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/saveBtn"

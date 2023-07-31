@@ -29,74 +29,41 @@
         android:textSize="@dimen/heading_2"
         android:textStyle="italic|bold" />
 
-    <EditText
-        android:id="@+id/emailEdt"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lg"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/emailEdtLayout"
+        style="@style/TextInputLayoutStyle"
         android:layout_marginTop="@dimen/md"
-        android:background="@drawable/blue_border_bg"
-        android:hint="@string/email"
-        android:imeOptions="actionDone"
-        android:inputType="textEmailAddress"
-        android:paddingHorizontal="@dimen/xx_sm"
-        android:textColor="@color/primaryColor"
-        android:textColorHint="@color/primaryColor"
-        android:textSize="@dimen/heading_4" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/topicNameLabel">
 
-    <EditText
-        android:id="@+id/passwordEdt"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lg"
-        android:layout_marginTop="@dimen/md"
-        android:background="@drawable/blue_border_bg"
-        android:drawableEnd="@drawable/eye_crossed_ic"
-        android:hint="@string/password"
-        android:imeOptions="actionDone"
-        android:inputType="textPassword"
-        android:paddingHorizontal="@dimen/xx_sm"
-        android:textColor="@color/primaryColor"
-        android:textColorHint="@color/primaryColor"
-        android:textSize="@dimen/heading_4" />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/emailEdt"
+            style="@style/EdtStyle"
+            android:hint="@string/email"
+            android:imeOptions="actionDone"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/signInBtn"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/lg"
-        android:layout_marginTop="@dimen/md"
-        app:cardBackgroundColor="@color/primaryColor"
-        app:cardCornerRadius="@dimen/x_sm">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/passwordContainer"
+        style="@style/PasswordInputLayoutStyle"
+        android:layout_marginTop="@dimen/md">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/passwordEdt"
+            style="@style/PasswordEdtStyle"
+            android:hint="@string/password" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="@dimen/md"
-                android:layout_height="@dimen/md"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/xx_sm"
-                android:layout_toLeftOf="@id/signInText"
-                android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/signInText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/sign_in"
-                android:textColor="@color/white"
-                android:textSize="@dimen/heading_3"
-                android:textStyle="bold" />
-        </RelativeLayout>
-
-    </androidx.cardview.widget.CardView>
+    <include
+        android:id="@+id/submitBtnLayout"
+        layout="@layout/submit_btn_layout" />
 
     <TextView
         android:id="@+id/forgotPwdTxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/md"
         android:text="@string/forgot_password"
         android:textAlignment="center"
         android:textColor="@color/primaryColor"
