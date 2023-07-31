@@ -16,17 +16,12 @@ import t3h.android.admin.listener.OnBindViewListener;
 import t3h.android.admin.listener.OnItemClickListener;
 
 public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.ItemViewHolder> {
-    private List<T> oldItemList, newItemList;
+    private List<T> itemList;
     private OnBindViewListener<T> onBindViewListener;
     private OnItemClickListener<T> onItemClickListener;
 
     public ItemListAdapter() {
-        newItemList = new ArrayList<>();
-        oldItemList = new ArrayList<>();
-    }
-
-    public void setData(List<T> data) {
-        newItemList = data;
+        itemList = new ArrayList<>();
     }
 
     public void bindAdapter(OnBindViewListener<T> listener) {
@@ -48,12 +43,12 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        holder.bindView(newItemList.get(position), onBindViewListener);
+        holder.bindView(itemList.get(position), onBindViewListener);
     }
 
     @Override
     public int getItemCount() {
-        return newItemList == null ? 0 : newItemList.size();
+        return itemList == null ? 0 : itemList.size();
     }
 
     public class ItemViewHolder<T> extends RecyclerView.ViewHolder {
@@ -65,7 +60,7 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
 
             binding.itemListLayout.setOnClickListener(v -> {
                 if (onItemClickListener != null) {
-                    onItemClickListener.onItemClicked(newItemList.get(getAdapterPosition()));
+                    onItemClickListener.onItemClicked(itemList.get(getAdapterPosition()));
                 }
             });
         }
@@ -76,9 +71,9 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
     }
 
     public void updateItemList(List<T> newItemList) {
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<T>(oldItemList, newItemList));
-        oldItemList.clear();
-        oldItemList.addAll(newItemList);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<>(itemList, newItemList));
+        itemList.clear();
+        itemList.addAll(newItemList);
         diffResult.dispatchUpdatesTo(this);
     }
 }
