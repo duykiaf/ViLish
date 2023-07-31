@@ -183,7 +183,15 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     private void onSaveBtnClick() {
         topicName = binding.nameEdt.getText().toString().trim();
         if (isUpdateView) {
-
+            if (!alreadyAvailableTopic.getName().equalsIgnoreCase(topicName)) {
+                if (topicName.isEmpty()) {
+                    Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+                } else {
+                    checkTopicName();
+                }
+            } else {
+                uploadData();
+            }
         } else {
             if (topicName.isEmpty() || selectedImgUri == null) {
                 Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
@@ -224,24 +232,30 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     private void uploadData() {
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.IMG_STORAGE_NAME)
-                .child(String.valueOf(System.currentTimeMillis()));
-        storageReference.putFile(selectedImgUri).addOnSuccessListener(taskSnapshot -> {
-            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-            while (!uriTask.isComplete()) ;
-            Uri urlImage = uriTask.getResult();
-            imageURL = urlImage.toString();
+        if (selectedImgUri != null) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.IMG_STORAGE_NAME)
+                    .child(String.valueOf(System.currentTimeMillis()));
+            storageReference.putFile(selectedImgUri).addOnSuccessListener(taskSnapshot -> {
+                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!uriTask.isComplete()) ;
+                Uri urlImage = uriTask.getResult();
+                imageURL = urlImage.toString();
+                saveData();
+                binding.progressBar.setVisibility(View.GONE);
+            }).addOnFailureListener(e -> {
+                binding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
+            });
+        } else {
+            imageURL = alreadyAvailableTopic.getImagePath();
             saveData();
             binding.progressBar.setVisibility(View.GONE);
-        }).addOnFailureListener(e -> {
-            binding.progressBar.setVisibility(View.GONE);
-            Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
-        });
+        }
     }
 
     private void saveData() {
         if (isUpdateView) {
-            Log.e("DNV", "update");
+            topic = new Topic(alreadyAvailableTopic.getId(), topicName, imageURL, topicStatus);
         } else {
             topic = new Topic(RandomStringGenerator.generateRandomString(), topicName, imageURL, 1);
         }
@@ -251,6 +265,10 @@ public class CreateOrUpdateTopicFragment extends Fragment {
                 if (!isUpdateView) {
                     resetForm();
                 } else {
+                    if (selectedImgUri != null) {
+                        StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(alreadyAvailableTopic.getImagePath());
+                        reference.delete();
+                    }
                     requireActivity().onBackPressed();
                 }
             }
@@ -265,7 +283,6 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-//        binding = null;
     }
 
     @Override
