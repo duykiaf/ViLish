@@ -28,4 +28,5 @@ public class AppConstant {
     public static final String TOPICS = "Topics";
     public static final String SYSTEM_ERROR = "System error. Please try again";
     public static final String TOPIC_INFO = "topicInfo";
+    public static final String NAME_ALREADY_EXISTS = "This name already exists";
 }
