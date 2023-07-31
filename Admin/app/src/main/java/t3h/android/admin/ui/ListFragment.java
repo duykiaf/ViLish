@@ -80,6 +80,7 @@ public class ListFragment extends Fragment {
     }
 
     private void fetchTopicList() {
+        binding.progressBar.setVisibility(View.VISIBLE);
         firebaseDatabase.getReference().child(AppConstant.TOPICS).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -91,10 +92,12 @@ public class ListFragment extends Fragment {
                     }
                 }
                 topicAdapter.updateItemList(topicList);
+                binding.progressBar.setVisibility(View.GONE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                binding.progressBar.setVisibility(View.GONE);
                 Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
             }
         });
@@ -113,6 +116,7 @@ public class ListFragment extends Fragment {
             bundle.putSerializable(AppConstant.TOPIC_INFO, topicItem);
             navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateTopicFragment, bundle);
         });
+        binding.goToTopImageView.setOnClickListener(v -> binding.listRcv.smoothScrollToPosition(0));
     }
 
     @Override

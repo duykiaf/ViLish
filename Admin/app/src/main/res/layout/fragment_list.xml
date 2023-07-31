@@ -22,6 +22,17 @@
         android:visibility="gone"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="@dimen/md"
+        android:layout_height="@dimen/md"
+        android:layout_marginVertical="@dimen/md"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/searchEdt"
+        app:layout_constraintStart_toStartOf="@id/searchEdt"
+        app:layout_constraintTop_toBottomOf="@id/searchEdt"
+        tools:ignore="MissingConstraints" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listRcv"
         android:layout_width="match_parent"
