@@ -15,4 +15,5 @@
     <dimen name="x_lg">60dp</dimen>
     <dimen name="xx_lg">70dp</dimen>
     <dimen name="xxx_lg">86dp</dimen>
+    <dimen name="xlg">400dp</dimen>
 </resources>
