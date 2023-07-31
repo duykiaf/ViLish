@@ -27,10 +27,16 @@ import androidx.navigation.Navigation;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import t3h.android.admin.R;
 import t3h.android.admin.databinding.FragmentCreateOrUpdateTopicBinding;
@@ -50,7 +56,9 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private Uri selectedImgUri;
     private String topicName, imageURL;
+    private int topicStatus;
     private Topic topic, alreadyAvailableTopic;
+    private List<String> topicNames = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -126,12 +134,11 @@ public class CreateOrUpdateTopicFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 DropdownItem item = (DropdownItem) adapterView.getSelectedItem();
-                Toast.makeText(requireActivity(), String.valueOf(item.getHiddenValue()), Toast.LENGTH_SHORT).show();
+                topicStatus = item.getHiddenValue();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
     }
@@ -142,7 +149,7 @@ public class CreateOrUpdateTopicFragment extends Fragment {
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
         binding.addImage.setOnClickListener(v -> handleSelectedImage());
-        binding.saveBtn.setOnClickListener(v -> saveData());
+        binding.saveBtn.setOnClickListener(v -> onSaveBtnClick());
     }
 
     private void onBackPressed() {
@@ -173,30 +180,66 @@ public class CreateOrUpdateTopicFragment extends Fragment {
         activityResultLauncher.launch(imagePicker);
     }
 
-    private void saveData() {
+    private void onSaveBtnClick() {
         topicName = binding.nameEdt.getText().toString().trim();
-        if (topicName.isEmpty() || selectedImgUri == null) {
-            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+        if (isUpdateView) {
+
         } else {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.IMG_STORAGE_NAME)
-                    .child(String.valueOf(System.currentTimeMillis()));
-            storageReference.putFile(selectedImgUri).addOnSuccessListener(taskSnapshot -> {
-                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-                while (!uriTask.isComplete()) ;
-                Uri urlImage = uriTask.getResult();
-                imageURL = urlImage.toString();
-                uploadData();
-                binding.progressBar.setVisibility(View.GONE);
-            }).addOnFailureListener(e -> {
-                binding.progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
-            });
+            if (topicName.isEmpty() || selectedImgUri == null) {
+                Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+            } else {
+                checkTopicName();
+            }
         }
     }
 
+    private void checkTopicName() {
+        databaseReference.child(AppConstant.TOPICS).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    topicNames.clear();
+                    for (DataSnapshot data : snapshot.getChildren()) {
+                        Topic model = data.getValue(Topic.class);
+                        if (model != null) {
+                            topicNames.add(model.getName().toLowerCase());
+                        }
+                    }
+                    if (!topicNames.isEmpty() && topicNames.contains(topicName.toLowerCase())) {
+                        Toast.makeText(requireActivity(), AppConstant.NAME_ALREADY_EXISTS, Toast.LENGTH_LONG).show();
+                    } else {
+                        uploadData();
+                    }
+                } else {
+                    uploadData();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
     private void uploadData() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.IMG_STORAGE_NAME)
+                .child(String.valueOf(System.currentTimeMillis()));
+        storageReference.putFile(selectedImgUri).addOnSuccessListener(taskSnapshot -> {
+            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+            while (!uriTask.isComplete()) ;
+            Uri urlImage = uriTask.getResult();
+            imageURL = urlImage.toString();
+            saveData();
+            binding.progressBar.setVisibility(View.GONE);
+        }).addOnFailureListener(e -> {
+            binding.progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
+        });
+    }
+
+    private void saveData() {
         if (isUpdateView) {
             Log.e("DNV", "update");
         } else {
@@ -222,6 +265,12 @@ public class CreateOrUpdateTopicFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+//        binding = null;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
         binding = null;
     }
 }
