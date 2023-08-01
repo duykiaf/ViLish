@@ -216,8 +216,14 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
         binding.uploadAudioBtn.setOnClickListener(v -> selectAudio());
-//        binding.lyricsEdt.setOnTouchListener((view, motionEvent) -> scrollableEdt(view, motionEvent, R.id.lyricsEdt));
-//        binding.translationsEdt.setOnTouchListener((view, motionEvent) -> scrollableEdt(view, motionEvent, R.id.translationsEdt));
+        binding.lyricsEdt.setOnTouchListener((view, motionEvent) -> {
+            binding.lyricsEdt.requestFocus();
+            return scrollableEdt(view, motionEvent, R.id.lyricsEdt);
+        });
+        binding.translationsEdt.setOnTouchListener((view, motionEvent) -> {
+            binding.translationsEdt.requestFocus();
+            return scrollableEdt(view, motionEvent, R.id.translationsEdt);
+        });
         binding.submitBtnLayout.submitBtn.setOnClickListener(v -> onSubmitBtnClick());
     }
 
