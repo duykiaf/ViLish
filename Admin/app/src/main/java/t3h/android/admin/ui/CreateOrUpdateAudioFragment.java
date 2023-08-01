@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -42,6 +43,7 @@ import t3h.android.admin.databinding.FragmentCreateOrUpdateAudioBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
 import t3h.android.admin.helper.RandomStringGenerator;
+import t3h.android.admin.helper.StatusDropdownHelper;
 import t3h.android.admin.model.Audio;
 import t3h.android.admin.model.DropdownItem;
 import t3h.android.admin.model.Topic;
@@ -51,11 +53,12 @@ public class CreateOrUpdateAudioFragment extends Fragment {
     private NavController navController;
     private boolean isUpdateView = false;
     private Uri selectedAudioUri;
-    private String title, audioURL, lyrics, translations, audioStatus, topicId, topicName;
+    private String title, audioFileName, audioURL, lyrics, translations, topicId, topicName;
+    private int audioStatus;
     private ActivityResultLauncher<Intent> activityResultLauncher;
     private FirebaseDatabase firebaseDatabase;
     private List<DropdownItem> topicsDropdownList = new ArrayList<>();
-    private Audio audio;
+    private Audio audio, alreadyAvailableAudio;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -98,8 +101,8 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         if (returnCursor != null) {
             int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
             returnCursor.moveToFirst();
-            String fileName = returnCursor.getString(nameIndex);
-            binding.fileNamePreview.setText(fileName);
+            audioFileName = returnCursor.getString(nameIndex);
+            binding.fileNamePreview.setText(audioFileName);
         } else {
             Toast.makeText(requireActivity(), AppConstant.AUDIO_SELECTED, Toast.LENGTH_SHORT).show();
         }
@@ -108,6 +111,10 @@ public class CreateOrUpdateAudioFragment extends Fragment {
     private void initTopAppBar() {
         if (isUpdateView) {
             binding.appBarFragment.topAppBar.setTitle(AppConstant.UPDATE_AUDIO);
+            if (requireArguments().get(AppConstant.AUDIO_INFO) != null) {
+                alreadyAvailableAudio = (Audio) requireArguments().get(AppConstant.AUDIO_INFO);
+                initUpdateUI();
+            }
         } else {
             binding.appBarFragment.topAppBar.setTitle(AppConstant.CREATE_AUDIO);
         }
@@ -131,13 +138,20 @@ public class CreateOrUpdateAudioFragment extends Fragment {
                                 android.R.layout.simple_spinner_item, topicsDropdownList);
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                         binding.topicsSpinner.setAdapter(adapter);
+
+                        // get selected item
+                        displaySelectedTopicItem(topicsDropdownList);
+
+                        onTopicItemSelected();
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
                     }
                 });
+    }
 
+    private void onTopicItemSelected() {
         binding.topicsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -152,12 +166,58 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         });
     }
 
+    private void displaySelectedTopicItem(List<DropdownItem> topicsDropdownList) {
+        if (alreadyAvailableAudio != null) {
+            DropdownItem selectedItem = null;
+            for (DropdownItem item : topicsDropdownList) {
+                if (item.getStrHiddenValue().equals(alreadyAvailableAudio.getTopicId())) {
+                    selectedItem = item;
+                    break;
+                }
+            }
+            if (selectedItem != null) {
+                binding.topicsSpinner.setSelection(topicsDropdownList.indexOf(selectedItem));
+            }
+        }
+    }
+
+    private void initUpdateUI() {
+        binding.titleEdt.setText(alreadyAvailableAudio.getName());
+        binding.fileNamePreview.setText(alreadyAvailableAudio.getAudioFileName());
+        binding.lyricsEdt.setText(alreadyAvailableAudio.getLyrics());
+        binding.translationsEdt.setText(alreadyAvailableAudio.getTranslations());
+        initStatusDropdown();
+    }
+
+    private void initStatusDropdown() {
+        binding.selectStatusLabel.setVisibility(View.VISIBLE);
+        binding.statusSpinner.setVisibility(View.VISIBLE);
+        ArrayAdapter<DropdownItem> adapter = new ArrayAdapter<>(requireActivity(),
+                android.R.layout.simple_spinner_item, StatusDropdownHelper.statusDropdown());
+        binding.statusSpinner.setAdapter(adapter);
+        binding.statusSpinner.setSelection(alreadyAvailableAudio.getStatus());
+        binding.statusSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                DropdownItem item = (DropdownItem) adapterView.getSelectedItem();
+                audioStatus = item.getHiddenValue();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onResume() {
         super.onResume();
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
         binding.uploadAudioBtn.setOnClickListener(v -> selectAudio());
+//        binding.lyricsEdt.setOnTouchListener((view, motionEvent) -> scrollableEdt(view, motionEvent, R.id.lyricsEdt));
+//        binding.translationsEdt.setOnTouchListener((view, motionEvent) -> scrollableEdt(view, motionEvent, R.id.translationsEdt));
         binding.submitBtnLayout.submitBtn.setOnClickListener(v -> onSubmitBtnClick());
     }
 
@@ -189,14 +249,37 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         activityResultLauncher.launch(intent);
     }
 
+    private boolean scrollableEdt(View view, MotionEvent motionEvent, int lyricsEdt) {
+        if (view.getId() == lyricsEdt) {
+            view.getParent().requestDisallowInterceptTouchEvent(true);
+            if ((motionEvent.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+                view.getParent().requestDisallowInterceptTouchEvent(false);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void onSubmitBtnClick() {
         title = binding.titleEdt.getText().toString().trim();
         lyrics = binding.lyricsEdt.getText().toString().trim();
         translations = binding.translationsEdt.getText().toString().trim();
-        if (title.isEmpty() || selectedAudioUri == null || lyrics.isEmpty() || translations.isEmpty()) {
-            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+        if (isUpdateView) {
+            if (!alreadyAvailableAudio.getName().equalsIgnoreCase(title)) {
+                if (title.isEmpty()) {
+                    Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+                } else {
+                    checkAudioTitle();
+                }
+            } else {
+                uploadData();
+            }
         } else {
-            checkAudioTitle();
+            if (title.isEmpty() || selectedAudioUri == null || lyrics.isEmpty() || translations.isEmpty()) {
+                Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+            } else {
+                checkAudioTitle();
+            }
         }
     }
 
@@ -223,29 +306,48 @@ public class CreateOrUpdateAudioFragment extends Fragment {
     private void uploadData() {
         binding.submitBtnLayout.progressBar.setVisibility(View.VISIBLE);
         binding.submitBtnLayout.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.AUDIO_STORAGE_NAME)
-                .child(String.valueOf(System.currentTimeMillis()));
-        storageReference.putFile(selectedAudioUri).addOnSuccessListener(taskSnapshot -> {
-            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
-            while (!uriTask.isComplete()) ;
-            Uri urlImage = uriTask.getResult();
-            audioURL = urlImage.toString();
+        if (selectedAudioUri != null) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.AUDIO_STORAGE_NAME)
+                    .child(String.valueOf(System.currentTimeMillis()));
+            storageReference.putFile(selectedAudioUri).addOnSuccessListener(taskSnapshot -> {
+                Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!uriTask.isComplete()) ;
+                Uri urlImage = uriTask.getResult();
+                audioURL = urlImage.toString();
+                saveData();
+                binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
+            }).addOnFailureListener(e -> {
+                binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show();
+            });
+        } else {
+            audioURL = alreadyAvailableAudio.getAudioFileFromFirebase();
+            audioFileName = alreadyAvailableAudio.getAudioFileName();
             saveData();
             binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
-        }).addOnFailureListener(e -> {
-            binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
-            Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show();
-        });
+        }
+
     }
 
     private void saveData() {
-        audio = new Audio(RandomStringGenerator.generateRandomString(), title, audioURL,
-                null, lyrics, translations, 1, topicId, topicName);
+        if (isUpdateView) {
+            audio = new Audio(alreadyAvailableAudio.getId(), title, audioFileName, audioURL,
+                    null, lyrics, translations, audioStatus, topicId, topicName);
+        } else {
+            audio = new Audio(RandomStringGenerator.generateRandomString(), title, audioFileName, audioURL,
+                    null, lyrics, translations, 1, topicId, topicName);
+        }
         firebaseDatabase.getReference().child(AppConstant.AUDIO_STORAGE_NAME).child(audio.getId())
                 .setValue(audio).addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(requireActivity(), AppConstant.SAVED, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireActivity(), AppConstant.SAVED, Toast.LENGTH_LONG).show();
+                    if (!isUpdateView) {
                         resetForm();
+                    } else {
+                        if (selectedAudioUri != null) {
+                            StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(alreadyAvailableAudio.getAudioFileFromFirebase());
+                            reference.delete();
+                        }
+                        requireActivity().onBackPressed();
                     }
                 }).addOnFailureListener(e -> Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show());
     }
