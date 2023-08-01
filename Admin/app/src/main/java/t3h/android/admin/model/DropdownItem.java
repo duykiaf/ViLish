@@ -4,10 +4,16 @@ import androidx.annotation.NonNull;
 
 public class DropdownItem {
     private int hiddenValue;
+    private String strHiddenValue;
     private String displayText;
 
     public DropdownItem(int hiddenValue, String displayText) {
         this.hiddenValue = hiddenValue;
+        this.displayText = displayText;
+    }
+
+    public DropdownItem(String strHiddenValue, String displayText) {
+        this.strHiddenValue = strHiddenValue;
         this.displayText = displayText;
     }
 
@@ -20,6 +26,14 @@ public class DropdownItem {
 
     public void setHiddenValue(int hiddenValue) {
         this.hiddenValue = hiddenValue;
+    }
+
+    public String getStrHiddenValue() {
+        return strHiddenValue;
+    }
+
+    public void setStrHiddenValue(String strHiddenValue) {
+        this.strHiddenValue = strHiddenValue;
     }
 
     public String getDisplayText() {
