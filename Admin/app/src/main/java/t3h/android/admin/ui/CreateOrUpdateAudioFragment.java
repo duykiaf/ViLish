@@ -1,28 +1,61 @@
 package t3h.android.admin.ui;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import t3h.android.admin.R;
 import t3h.android.admin.databinding.FragmentCreateOrUpdateAudioBinding;
 import t3h.android.admin.helper.AppConstant;
 import t3h.android.admin.helper.FirebaseAuthHelper;
+import t3h.android.admin.helper.RandomStringGenerator;
+import t3h.android.admin.model.Audio;
+import t3h.android.admin.model.DropdownItem;
+import t3h.android.admin.model.Topic;
 
 public class CreateOrUpdateAudioFragment extends Fragment {
     private FragmentCreateOrUpdateAudioBinding binding;
     private NavController navController;
     private boolean isUpdateView = false;
+    private Uri selectedAudioUri;
+    private String title, audioURL, lyrics, translations, audioStatus, topicId, topicName;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+    private FirebaseDatabase firebaseDatabase;
+    private List<DropdownItem> topicsDropdownList = new ArrayList<>();
+    private Audio audio;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,9 +67,42 @@ public class CreateOrUpdateAudioFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        firebaseDatabase = FirebaseDatabase.getInstance();
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         isUpdateView = requireArguments().getBoolean(AppConstant.IS_UPDATE);
         initTopAppBar();
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            Intent data = result.getData();
+                            if (data != null) {
+                                selectedAudioUri = data.getData();
+                                // get audio name
+                                displayAudioFileName(selectedAudioUri);
+                            }
+                        } else {
+                            Toast.makeText(requireActivity(), AppConstant.NO_AUDIO_SELECTED, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+        initTopicSpinner();
+    }
+
+    private void displayAudioFileName(Uri selectedAudioUri) {
+        Cursor returnCursor = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            returnCursor = requireActivity().getContentResolver().query(selectedAudioUri, null, null, null);
+        }
+        if (returnCursor != null) {
+            int nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+            returnCursor.moveToFirst();
+            String fileName = returnCursor.getString(nameIndex);
+            binding.fileNamePreview.setText(fileName);
+        } else {
+            Toast.makeText(requireActivity(), AppConstant.AUDIO_SELECTED, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initTopAppBar() {
@@ -49,11 +115,50 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         binding.appBarFragment.topAppBar.setNavigationIconTint(Color.WHITE);
     }
 
+    private void initTopicSpinner() {
+        firebaseDatabase.getReference().child(AppConstant.TOPICS).orderByChild("status").equalTo(1)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        topicsDropdownList.clear();
+                        for (DataSnapshot data : snapshot.getChildren()) {
+                            Topic topicInfo = data.getValue(Topic.class);
+                            if (topicInfo != null) {
+                                topicsDropdownList.add(new DropdownItem(topicInfo.getId(), topicInfo.getName()));
+                            }
+                        }
+                        ArrayAdapter<DropdownItem> adapter = new ArrayAdapter<>(requireActivity(),
+                                android.R.layout.simple_spinner_item, topicsDropdownList);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        binding.topicsSpinner.setAdapter(adapter);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+
+        binding.topicsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                DropdownItem item = (DropdownItem) adapterView.getSelectedItem();
+                topicId = item.getStrHiddenValue();
+                topicName = item.getDisplayText();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> onBackPressed());
         onMenuItemClick();
+        binding.uploadAudioBtn.setOnClickListener(v -> selectAudio());
+        binding.submitBtnLayout.submitBtn.setOnClickListener(v -> onSubmitBtnClick());
     }
 
     private void onBackPressed() {
@@ -78,9 +183,83 @@ public class CreateOrUpdateAudioFragment extends Fragment {
         });
     }
 
+    private void selectAudio() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("audio/*");
+        activityResultLauncher.launch(intent);
+    }
+
+    private void onSubmitBtnClick() {
+        title = binding.titleEdt.getText().toString().trim();
+        lyrics = binding.lyricsEdt.getText().toString().trim();
+        translations = binding.translationsEdt.getText().toString().trim();
+        if (title.isEmpty() || selectedAudioUri == null || lyrics.isEmpty() || translations.isEmpty()) {
+            Toast.makeText(requireActivity(), AppConstant.EMPTY_ERROR, Toast.LENGTH_LONG).show();
+        } else {
+            checkAudioTitle();
+        }
+    }
+
+    private void checkAudioTitle() {
+        firebaseDatabase.getReference().child(AppConstant.AUDIO_STORAGE_NAME).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Audio audio = data.getValue(Audio.class);
+                    if (audio != null && title.equalsIgnoreCase(audio.getName())) {
+                        Toast.makeText(requireActivity(), AppConstant.NAME_ALREADY_EXISTS, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                }
+                uploadData();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+    }
+
+    private void uploadData() {
+        binding.submitBtnLayout.progressBar.setVisibility(View.VISIBLE);
+        binding.submitBtnLayout.progressBar.getIndeterminateDrawable().setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(AppConstant.AUDIO_STORAGE_NAME)
+                .child(String.valueOf(System.currentTimeMillis()));
+        storageReference.putFile(selectedAudioUri).addOnSuccessListener(taskSnapshot -> {
+            Task<Uri> uriTask = taskSnapshot.getStorage().getDownloadUrl();
+            while (!uriTask.isComplete()) ;
+            Uri urlImage = uriTask.getResult();
+            audioURL = urlImage.toString();
+            saveData();
+            binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
+        }).addOnFailureListener(e -> {
+            binding.submitBtnLayout.progressBar.setVisibility(View.GONE);
+            Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show();
+        });
+    }
+
+    private void saveData() {
+        audio = new Audio(RandomStringGenerator.generateRandomString(), title, audioURL,
+                null, lyrics, translations, 1, topicId, topicName);
+        firebaseDatabase.getReference().child(AppConstant.AUDIO_STORAGE_NAME).child(audio.getId())
+                .setValue(audio).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(requireActivity(), AppConstant.SAVED, Toast.LENGTH_LONG).show();
+                        resetForm();
+                    }
+                }).addOnFailureListener(e -> Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show());
+    }
+
+    private void resetForm() {
+        binding.titleEdt.setText("");
+        binding.lyricsEdt.setText("");
+        binding.translationsEdt.setText("");
+        binding.fileNamePreview.setText("");
+    }
+
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onDestroy() {
+        super.onDestroy();
         binding = null;
     }
 }
