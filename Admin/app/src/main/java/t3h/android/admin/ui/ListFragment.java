@@ -99,6 +99,11 @@ public class ListFragment extends Fragment {
                         topicList.add(model);
                     }
                 }
+                if (topicList == null) {
+                    binding.noDataTxt.setVisibility(View.VISIBLE);
+                } else {
+                    binding.noDataTxt.setVisibility(View.GONE);
+                }
                 topicAdapter.updateItemList(topicList);
                 binding.progressBar.setVisibility(View.GONE);
             }
@@ -121,6 +126,11 @@ public class ListFragment extends Fragment {
                     if (audio != null) {
                         audioList.add(audio);
                     }
+                }
+                if (audioList == null) {
+                    binding.noDataTxt.setVisibility(View.VISIBLE);
+                } else {
+                    binding.noDataTxt.setVisibility(View.GONE);
                 }
                 audioAdapter.updateItemList(audioList);
                 binding.progressBar.setVisibility(View.GONE);
