@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class Audio implements Serializable {
     private String id;
     private String name;
+    private String audioFileName;
     private String audioFileFromFirebase;
     private String audioFileFromDevice;
     private String lyrics;
@@ -21,10 +22,11 @@ public class Audio implements Serializable {
     public Audio() {
     }
 
-    public Audio(String id, String name, String audioFileFromFirebase, String audioFileFromDevice,
+    public Audio(String id, String name, String audioFileName, String audioFileFromFirebase, String audioFileFromDevice,
                  String lyrics, String translations, int status, String topicId, String topicName) {
         this.id = id;
         this.name = name;
+        this.audioFileName = audioFileName;
         this.audioFileFromFirebase = audioFileFromFirebase;
         this.audioFileFromDevice = audioFileFromDevice;
         this.lyrics = lyrics;
@@ -48,6 +50,14 @@ public class Audio implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getAudioFileName() {
+        return audioFileName;
+    }
+
+    public void setAudioFileName(String audioFileName) {
+        this.audioFileName = audioFileName;
     }
 
     public String getAudioFileFromFirebase() {
