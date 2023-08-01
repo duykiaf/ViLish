@@ -244,7 +244,7 @@ public class CreateOrUpdateTopicFragment extends Fragment {
                 binding.progressBar.setVisibility(View.GONE);
             }).addOnFailureListener(e -> {
                 binding.progressBar.setVisibility(View.GONE);
-                Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show();
+                Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show();
             });
         } else {
             imageURL = alreadyAvailableTopic.getImagePath();
@@ -272,7 +272,7 @@ public class CreateOrUpdateTopicFragment extends Fragment {
                     requireActivity().onBackPressed();
                 }
             }
-        }).addOnFailureListener(e -> Toast.makeText(requireActivity(), AppConstant.CREATE_TOPIC_FAILED, Toast.LENGTH_LONG).show());
+        }).addOnFailureListener(e -> Toast.makeText(requireActivity(), AppConstant.CREATE_FAILED, Toast.LENGTH_LONG).show());
     }
 
     private void resetForm() {
