@@ -63,24 +63,32 @@ public class ListFragment extends Fragment {
     }
 
     private void initItemList() {
+        binding.listRcv.setLayoutManager(new LinearLayoutManager(requireActivity()));
+        binding.progressBar.setVisibility(View.VISIBLE);
         if (position == 1) {
             // init audios list here
+            binding.listRcv.setAdapter(audioAdapter);
+            fetchAudioList();
+            audioAdapter.bindAdapter((audio, itemListLayoutBinding) -> {
+                if (audio.getStatus() == 0) {
+                    bindInActiveItem(itemListLayoutBinding);
+                }
+                itemListLayoutBinding.itemName.setText(audio.getName());
+            });
         } else {
             // init topics list here
             binding.listRcv.setAdapter(topicAdapter);
-            binding.listRcv.setLayoutManager(new LinearLayoutManager(requireActivity()));
             fetchTopicList();
-            topicAdapter.bindAdapter((model, itemListLayoutBinding) -> {
-                if (model.getStatus() == 0) {
+            topicAdapter.bindAdapter((topic, itemListLayoutBinding) -> {
+                if (topic.getStatus() == 0) {
                     bindInActiveItem(itemListLayoutBinding);
                 }
-                itemListLayoutBinding.itemName.setText(model.getName());
+                itemListLayoutBinding.itemName.setText(topic.getName());
             });
         }
     }
 
     private void fetchTopicList() {
-        binding.progressBar.setVisibility(View.VISIBLE);
         firebaseDatabase.getReference().child(AppConstant.TOPICS).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -92,6 +100,29 @@ public class ListFragment extends Fragment {
                     }
                 }
                 topicAdapter.updateItemList(topicList);
+                binding.progressBar.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                binding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void fetchAudioList() {
+        firebaseDatabase.getReference().child(AppConstant.AUDIO_STORAGE_NAME).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                audioList.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    Audio audio = data.getValue(Audio.class);
+                    if (audio != null) {
+                        audioList.add(audio);
+                    }
+                }
+                audioAdapter.updateItemList(audioList);
                 binding.progressBar.setVisibility(View.GONE);
             }
 
@@ -115,6 +146,11 @@ public class ListFragment extends Fragment {
             bundle.putBoolean(AppConstant.IS_UPDATE, true);
             bundle.putSerializable(AppConstant.TOPIC_INFO, topicItem);
             navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateTopicFragment, bundle);
+        });
+        audioAdapter.setOnItemClickListener(audioItem -> {
+            bundle.putBoolean(AppConstant.IS_UPDATE, true);
+            bundle.putSerializable(AppConstant.AUDIO_INFO, audioItem);
+            navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateAudioFragment, bundle);
         });
         binding.goToTopImageView.setOnClickListener(v -> binding.listRcv.smoothScrollToPosition(0));
     }
