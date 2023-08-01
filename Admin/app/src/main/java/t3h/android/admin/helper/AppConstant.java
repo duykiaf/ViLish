@@ -31,4 +31,5 @@ public class AppConstant {
     public static final String NAME_ALREADY_EXISTS = "This name already exists";
     public static final String NO_AUDIO_SELECTED = "No audio selected";
     public static final String AUDIO_SELECTED = "Audio selected";
+    public static final String AUDIO_INFO = "audioInfo";
 }
