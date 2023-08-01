@@ -23,10 +23,12 @@ public class AppConstant {
     public static final String NO_IMAGE_SELECTED = "No image selected";
     public static final String IMG_STORAGE_NAME = "Images";
     public static final String AUDIO_STORAGE_NAME = "Audios";
-    public static final String CREATE_TOPIC_FAILED = "Create failed";
+    public static final String CREATE_FAILED = "Create failed";
     public static final String SAVED = "Saved";
     public static final String TOPICS = "Topics";
     public static final String SYSTEM_ERROR = "System error. Please try again";
     public static final String TOPIC_INFO = "topicInfo";
     public static final String NAME_ALREADY_EXISTS = "This name already exists";
+    public static final String NO_AUDIO_SELECTED = "No audio selected";
+    public static final String AUDIO_SELECTED = "Audio selected";
 }
