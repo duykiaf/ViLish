@@ -13,11 +13,14 @@ public class Audio {
     private String lyrics;
     private String translations;
     private int status;
+    private String topicId;
+    private String topicName;
 
     public Audio() {
     }
 
-    public Audio(String id, String name, String audioFileFromFirebase, String audioFileFromDevice, String lyrics, String translations, int status) {
+    public Audio(String id, String name, String audioFileFromFirebase, String audioFileFromDevice,
+                 String lyrics, String translations, int status, String topicId, String topicName) {
         this.id = id;
         this.name = name;
         this.audioFileFromFirebase = audioFileFromFirebase;
@@ -25,6 +28,8 @@ public class Audio {
         this.lyrics = lyrics;
         this.translations = translations;
         this.status = status;
+        this.topicId = topicId;
+        this.topicName = topicName;
     }
 
     public String getId() {
@@ -81,6 +86,22 @@ public class Audio {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public String getTopicId() {
+        return topicId;
+    }
+
+    public void setTopicId(String topicId) {
+        this.topicId = topicId;
+    }
+
+    public String getTopicName() {
+        return topicName;
+    }
+
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
     @Override
