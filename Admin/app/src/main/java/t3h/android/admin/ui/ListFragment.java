@@ -1,6 +1,8 @@
 package t3h.android.admin.ui;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +39,7 @@ public class ListFragment extends Fragment {
     private List<Topic> topicList = new ArrayList<>();
     private ItemListAdapter<Audio> audioAdapter = new ItemListAdapter<>();
     private List<Audio> audioList = new ArrayList<>();
+    private List<Audio> audioSearchList = new ArrayList<>();
     private Bundle bundle = new Bundle();
     private NavController navController;
 
@@ -80,6 +83,7 @@ public class ListFragment extends Fragment {
             binding.listRcv.setAdapter(topicAdapter);
             fetchTopicList();
             topicAdapter.bindAdapter((topic, itemListLayoutBinding) -> {
+//                resetViewColor(itemListLayoutBinding);
                 if (topic.getStatus() == 0) {
                     bindInActiveItem(itemListLayoutBinding);
                 }
@@ -144,6 +148,11 @@ public class ListFragment extends Fragment {
         });
     }
 
+    private void resetViewColor(ItemListLayoutBinding view) {
+        view.itemName.setTextColor(getResources().getColor(R.color.black));
+        view.itemListLayout.setBackgroundResource(R.drawable.blue_border_bg);
+    }
+
     private void bindInActiveItem(ItemListLayoutBinding view) {
         view.itemName.setTextColor(getResources().getColor(R.color.dangerColor));
         view.itemListLayout.setBackgroundResource(R.drawable.red_boder_bg);
@@ -162,7 +171,46 @@ public class ListFragment extends Fragment {
             bundle.putSerializable(AppConstant.AUDIO_INFO, audioItem);
             navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateAudioFragment, bundle);
         });
+        binding.searchImageView.setOnClickListener(v -> {
+            if (binding.searchEdt.getVisibility() == View.VISIBLE) {
+                binding.searchEdt.setVisibility(View.GONE);
+                binding.searchImageView.setBackgroundResource(R.drawable.blue_bg);
+            } else {
+                binding.searchEdt.setVisibility(View.VISIBLE);
+                binding.searchEdt.requestFocus();
+                if (position == 0) {
+                    binding.searchEdt.setHint(AppConstant.SEARCH_TOPIC);
+                    binding.searchEdt.addTextChangedListener(new TextWatcher() {
+                        @Override
+                        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        }
+
+                        @Override
+                        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                        }
+
+                        @Override
+                        public void afterTextChanged(Editable editable) {
+                            topicSearchList(editable.toString());
+                        }
+                    });
+                } else {
+                    binding.searchEdt.setHint(AppConstant.SEARCH_AUDIO);
+                }
+                binding.searchImageView.setBackgroundResource(R.drawable.pressed_search_btn_bg);
+            }
+        });
         binding.goToTopImageView.setOnClickListener(v -> binding.listRcv.smoothScrollToPosition(0));
+    }
+
+    private void topicSearchList(String keyword) {
+        List<Topic> topicSearchList = new ArrayList<>();
+        for (Topic data: topicList) {
+            if (data.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                topicSearchList.add(data);
+            }
+        }
+        topicAdapter.searchList(topicSearchList);
     }
 
     @Override
