@@ -172,11 +172,11 @@ public class ListFragment extends Fragment {
             navController.navigate(R.id.action_dashboardFragment_to_createOrUpdateAudioFragment, bundle);
         });
         binding.searchImageView.setOnClickListener(v -> {
-            if (binding.searchEdt.getVisibility() == View.VISIBLE) {
-                binding.searchEdt.setVisibility(View.GONE);
+            if (binding.searchEdtLayout.getVisibility() == View.VISIBLE) {
+                binding.searchEdtLayout.setVisibility(View.GONE);
                 binding.searchImageView.setBackgroundResource(R.drawable.blue_bg);
             } else {
-                binding.searchEdt.setVisibility(View.VISIBLE);
+                binding.searchEdtLayout.setVisibility(View.VISIBLE);
                 binding.searchEdt.requestFocus();
                 if (position == 0) {
                     binding.searchEdt.setHint(AppConstant.SEARCH_TOPIC);
