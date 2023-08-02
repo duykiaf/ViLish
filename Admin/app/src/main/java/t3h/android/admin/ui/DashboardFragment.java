@@ -79,7 +79,6 @@ public class DashboardFragment extends Fragment implements OnBackPressedListener
     private void initListByPager(String addNewTxt, String searchTxt) {
         binding.addNewImageView.setContentDescription(addNewTxt);
         binding.searchImageView.setContentDescription(searchTxt);
-        binding.searchEdt.setHint(searchTxt);
     }
 
     @Override
