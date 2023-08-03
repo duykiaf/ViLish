@@ -12,6 +12,8 @@
         android:layout_marginHorizontal="@dimen/xx_sm"
         android:layout_marginTop="@dimen/xx_sm"
         android:visibility="gone"
+        app:counterEnabled="true"
+        app:counterMaxLength="50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,7 +22,8 @@
             android:id="@+id/searchEdt"
             style="@style/EdtStyle"
             android:imeOptions="actionDone"
-            android:inputType="text" />
+            android:inputType="text"
+            android:maxLength="50" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <TextView
