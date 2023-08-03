@@ -1,6 +1,5 @@
 package t3h.android.admin.adapter;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -46,7 +45,6 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        Log.e("DNV", String.valueOf(position));
         holder.bindView(itemList.get(position), onBindViewListener);
     }
 
@@ -75,7 +73,7 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
     }
 
     public void updateItemList(List<T> newItemList) {
-        diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<>(itemList, newItemList));
+        diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<>(newItemList, itemList));
         itemList.clear();
         itemList.addAll(newItemList);
         dataSource.clear();
@@ -84,9 +82,11 @@ public class ItemListAdapter<T> extends RecyclerView.Adapter<ItemListAdapter.Ite
     }
 
     public void searchList(List<T> searchList) {
-        diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<>(dataSource, searchList));
-        itemList.clear();
-        itemList.addAll(searchList);
-        diffResult.dispatchUpdatesTo(this);
+        if (dataSource != null) {
+            diffResult = DiffUtil.calculateDiff(new ItemDiffUtils<>(searchList, itemList));
+            itemList.clear();
+            itemList.addAll(searchList);
+            diffResult.dispatchUpdatesTo(this);
+        }
     }
 }
