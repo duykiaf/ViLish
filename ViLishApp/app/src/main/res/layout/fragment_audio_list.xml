@@ -11,46 +11,14 @@
         layout="@layout/fragment_app_bar"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/noDataTxt"
+    <include
+        android:id="@+id/searchLayout"
+        layout="@layout/search_edt_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/x_md"
-        android:text="@string/no_data"
-        android:textAlignment="center"
-        android:textSize="@dimen/md_txt"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
 
-    <EditText
-        android:id="@+id/searchEdt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/xx_sm"
-        android:layout_marginTop="@dimen/xx_sm"
-        android:background="@drawable/card_bg"
-        android:hint="@string/search"
-        android:imeOptions="actionDone"
-        android:inputType="text"
-        android:padding="@dimen/md"
-        android:textColor="@color/black"
-        android:textColorHint="@color/primaryColor"
-        android:textSize="@dimen/md_txt"
-        android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
-
-    <ImageView
-        android:id="@+id/closeSearchLayout"
-        android:layout_width="@dimen/x_md"
-        android:layout_height="@dimen/x_md"
-        android:layout_marginEnd="@dimen/xx_sm"
-        android:background="@drawable/button_bg"
-        android:contentDescription="@string/app_name"
-        android:src="@drawable/close_ic"
-        android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@id/searchEdt"
-        app:layout_constraintEnd_toEndOf="@id/searchEdt"
-        app:layout_constraintTop_toTopOf="@id/searchEdt" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/audiosRcv"
@@ -58,22 +26,8 @@
         android:layout_height="0dp"
         android:paddingVertical="@dimen/x_sm"
         app:layout_constraintBottom_toTopOf="@id/audioControlLayout"
-        app:layout_constraintTop_toBottomOf="@id/searchEdt"
+        app:layout_constraintTop_toBottomOf="@id/searchLayout"
         tools:listitem="@layout/audio_item_layout" />
-
-    <!--    <ImageView-->
-    <!--        android:id="@+id/goToTopImageView"-->
-    <!--        android:layout_width="@dimen/xxx_md"-->
-    <!--        android:layout_height="@dimen/xxx_md"-->
-    <!--        android:layout_marginEnd="11dp"-->
-    <!--        android:layout_marginBottom="11dp"-->
-    <!--        android:background="@drawable/blue_btn_background"-->
-    <!--        android:contentDescription="@string/app_name"-->
-    <!--        android:padding="@dimen/padding_10dp"-->
-    <!--        android:src="@drawable/ic_arrow_upward"-->
-    <!--        app:layout_constraintBottom_toTopOf="@id/audioControlLayout"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:tint="@color/white" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/audioControlLayout"
