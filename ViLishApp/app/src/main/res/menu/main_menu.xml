@@ -12,4 +12,10 @@
         android:icon="@drawable/bookmarks_ic"
         android:title="@string/bookmarks"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/goToTopItem"
+        android:icon="@drawable/arrow_upward_ic"
+        android:title="@string/go_to_top"
+        app:showAsAction="ifRoom" />
 </menu>
