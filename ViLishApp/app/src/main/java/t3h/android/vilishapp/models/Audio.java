@@ -37,6 +37,9 @@ public class Audio implements Serializable {
     @SerializedName("topic_name")
     private String topicName;
 
+    public Audio() {
+    }
+
     public int getId() {
         return id;
     }
