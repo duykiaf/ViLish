@@ -1,4 +1,4 @@
-package t3h.android.vilishapp.helper;
+package t3h.android.vilishapp.helpers;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
