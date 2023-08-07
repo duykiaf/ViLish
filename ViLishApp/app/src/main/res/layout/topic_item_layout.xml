@@ -14,6 +14,7 @@
         android:id="@+id/topicImage"
         android:layout_width="@dimen/xx_lg"
         android:layout_height="@dimen/xx_lg"
+        android:src="@drawable/elife_logo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
