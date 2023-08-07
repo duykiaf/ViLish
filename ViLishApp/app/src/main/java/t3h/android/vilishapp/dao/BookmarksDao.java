@@ -1,2 +1,24 @@
-package t3h.android.vilishapp.dao;public class BookmarksDao {
+package t3h.android.vilishapp.dao;
+
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+
+import java.util.List;
+
+import t3h.android.vilishapp.models.Audio;
+
+@Dao
+public interface BookmarksDao {
+    @Query("select * from bookmarks")
+    LiveData<List<Audio>> getAllList();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long addBookmark(Audio audio);
+
+    @Delete
+    int deleteBookmark(Audio audio);
 }
