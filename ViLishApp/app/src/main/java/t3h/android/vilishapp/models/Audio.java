@@ -40,6 +40,17 @@ public class Audio implements Serializable {
     public Audio() {
     }
 
+    public Audio(String audioStrId, String name, String audioFileFromDevice, String lyrics,
+                 String translations, String topicId, String topicName) {
+        this.audioStrId = audioStrId;
+        this.name = name;
+        this.audioFileFromDevice = audioFileFromDevice;
+        this.lyrics = lyrics;
+        this.translations = translations;
+        this.topicId = topicId;
+        this.topicName = topicName;
+    }
+
     public int getId() {
         return id;
     }

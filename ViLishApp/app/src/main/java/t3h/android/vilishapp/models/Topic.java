@@ -14,6 +14,11 @@ public class Topic implements Serializable {
     public Topic() {
     }
 
+    public Topic(String id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public String getId() {
         return id;
     }
