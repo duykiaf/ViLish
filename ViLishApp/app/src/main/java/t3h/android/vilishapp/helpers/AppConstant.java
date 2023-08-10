@@ -8,4 +8,5 @@ public class AppConstant {
     public static final String STATUS = "status";
     public static final int ACTIVE = 1;
     public static final int SPAN_COUNT = 2;
+    public static final String SYSTEM_ERROR = "System error. Please try again";
 }
