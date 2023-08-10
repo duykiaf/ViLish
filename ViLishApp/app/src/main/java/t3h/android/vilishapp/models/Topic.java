@@ -10,13 +10,15 @@ import java.io.Serializable;
 public class Topic implements Serializable {
     private String id;
     private String name;
+    private String imagePath;
 
     public Topic() {
     }
 
-    public Topic(String id, String name) {
+    public Topic(String id, String name, String imagePath) {
         this.id = id;
         this.name = name;
+        this.imagePath = imagePath;
     }
 
     public String getId() {
@@ -33,6 +35,14 @@ public class Topic implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override
