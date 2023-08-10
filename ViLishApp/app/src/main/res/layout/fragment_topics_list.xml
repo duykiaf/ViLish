@@ -11,13 +11,68 @@
         layout="@layout/fragment_app_bar"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <include
-        android:id="@+id/searchLayout"
-        layout="@layout/search_edt_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!--    <include-->
+    <!--        android:id="@+id/searchLayout"-->
+    <!--        layout="@layout/search_edt_layout"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:visibility="gone"-->
+    <!--        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />-->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/searchEdtLayout"
+        style="@style/TextInputLayoutStyle"
+        android:layout_marginHorizontal="@dimen/xx_sm"
+        android:layout_marginTop="@dimen/xx_sm"
         android:visibility="gone"
-        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />
+        app:counterEnabled="true"
+        app:counterMaxLength="50"
+        app:layout_constraintTop_toBottomOf="@id/appBarFragment"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchEdt"
+            style="@style/EdtStyle"
+            android:hint="@string/search"
+            android:imeOptions="actionDone"
+            android:inputType="text"
+            android:maxLength="50" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/closeSearchLayout"
+        android:layout_width="@dimen/x_md"
+        android:layout_height="@dimen/x_md"
+        android:layout_marginEnd="@dimen/xx_sm"
+        android:background="@drawable/button_bg"
+        android:src="@drawable/close_ic"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/searchEdtLayout"
+        app:layout_constraintEnd_toEndOf="@id/searchEdtLayout"
+        app:layout_constraintTop_toTopOf="@id/searchEdtLayout" />
+
+    <TextView
+        android:id="@+id/noDataTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/md"
+        android:text="@string/no_data"
+        android:textColor="@color/black"
+        android:textSize="@dimen/x_md_txt"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/searchEdtLayout"
+        app:layout_constraintStart_toStartOf="@id/searchEdtLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchEdtLayout" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="@dimen/md"
+        android:layout_height="@dimen/md"
+        android:layout_marginTop="@dimen/md"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/noDataTxt"
+        app:layout_constraintStart_toStartOf="@id/noDataTxt"
+        app:layout_constraintTop_toBottomOf="@id/noDataTxt"
+        tools:ignore="MissingConstraints" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/topicsRcv"
@@ -28,7 +83,7 @@
         android:paddingEnd="@dimen/xx_sm"
         android:paddingBottom="@dimen/xx_sm"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchEdtLayout"
         tools:listitem="@layout/topic_item_layout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
