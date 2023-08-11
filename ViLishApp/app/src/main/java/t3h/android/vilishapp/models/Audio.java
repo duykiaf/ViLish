@@ -14,10 +14,10 @@ import java.io.Serializable;
 public class Audio implements Serializable {
     @PrimaryKey
     @SerializedName("id")
-    private int id;
+    private int intId;
 
     @SerializedName("audio_str_id")
-    private String audioStrId;
+    private String id;
 
     @SerializedName("name")
     private String name;
@@ -42,7 +42,7 @@ public class Audio implements Serializable {
 
     public Audio(String audioStrId, String name, String audioFileFromDevice, String lyrics,
                  String translations, String topicId, String topicName) {
-        this.audioStrId = audioStrId;
+        id = audioStrId;
         this.name = name;
         this.audioFileFromDevice = audioFileFromDevice;
         this.lyrics = lyrics;
@@ -51,20 +51,20 @@ public class Audio implements Serializable {
         this.topicName = topicName;
     }
 
-    public int getId() {
+    public int getIntId() {
+        return intId;
+    }
+
+    public void setIntId(int intId) {
+        this.intId = intId;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getAudioStrId() {
-        return audioStrId;
-    }
-
-    public void setAudioStrId(String audioStrId) {
-        this.audioStrId = audioStrId;
+    public void setId(String audioStrId) {
+        id = audioStrId;
     }
 
     public String getName() {
