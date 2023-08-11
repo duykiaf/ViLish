@@ -9,4 +9,6 @@ public class AppConstant {
     public static final int ACTIVE = 1;
     public static final int SPAN_COUNT = 2;
     public static final String SYSTEM_ERROR = "System error. Please try again";
+    public static final String TOPIC_ID = "topicId";
+    public static final String AUDIO_SCREEN_TITLE = "Audio";
 }
