@@ -32,7 +32,7 @@ public class ItemDiff<T> extends DiffUtil.Callback {
         if (oldItem instanceof Topic && newItem instanceof Topic) {
             return ((Topic) oldItem).getId().equals(((Topic) newItem).getId());
         } else if (oldItem instanceof Audio && newItem instanceof Audio) {
-            return ((Audio) oldItem).getAudioStrId().equals(((Audio) newItem).getAudioStrId());
+            return ((Audio) oldItem).getId().equals(((Audio) newItem).getId());
         }
         return false;
     }
