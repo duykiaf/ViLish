@@ -44,7 +44,6 @@ public class TopicsListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         firebaseDatabase = FirebaseDatabase.getInstance();
-        firebaseDatabase.setPersistenceEnabled(true);
         binding = FragmentTopicsListBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -104,6 +103,11 @@ public class TopicsListFragment extends Fragment {
             binding.searchEdtLayout.setVisibility(View.GONE);
             binding.closeSearchLayout.setVisibility(View.GONE);
             reloadListAfterSearch();
+        });
+        topicAdapter.setOnTopicItemClickListener(item -> {
+            Bundle topicIdBundle = new Bundle();
+            topicIdBundle.putString(AppConstant.TOPIC_ID, item.getId());
+            navController.navigate(R.id.action_topicsListFragment_to_audioListFragment, topicIdBundle);
         });
     }
 
