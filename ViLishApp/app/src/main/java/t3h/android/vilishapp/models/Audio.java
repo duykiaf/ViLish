@@ -25,6 +25,9 @@ public class Audio implements Serializable {
     @SerializedName("audio_file_from_device")
     private String audioFileFromDevice;
 
+    @SerializedName("audio_file_from_firebase")
+    private String audioFileFromFirebase;
+
     @SerializedName("lyrics")
     private String lyrics;
 
@@ -81,6 +84,14 @@ public class Audio implements Serializable {
 
     public void setAudioFileFromDevice(String audioFileFromDevice) {
         this.audioFileFromDevice = audioFileFromDevice;
+    }
+
+    public String getAudioFileFromFirebase() {
+        return audioFileFromFirebase;
+    }
+
+    public void setAudioFileFromFirebase(String audioFileFromFirebase) {
+        this.audioFileFromFirebase = audioFileFromFirebase;
     }
 
     public String getLyrics() {
