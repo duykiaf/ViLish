@@ -11,14 +11,6 @@
         layout="@layout/fragment_app_bar"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!--    <include-->
-    <!--        android:id="@+id/searchLayout"-->
-    <!--        layout="@layout/search_edt_layout"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:visibility="gone"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/appBarFragment" />-->
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/searchEdtLayout"
         style="@style/TextInputLayoutStyle"
@@ -75,7 +67,6 @@
         app:layout_constraintTop_toBottomOf="@id/noDataTxt"
         tools:ignore="MissingConstraints" />
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/audiosRcv"
         android:layout_width="match_parent"
@@ -92,11 +83,12 @@
         android:background="@drawable/controls_wrapper_background"
         android:paddingHorizontal="@dimen/md"
         android:paddingVertical="@dimen/x_sm"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="MissingConstraints">
 
         <TextView
-            android:id="@+id/audioTitle"
+            android:id="@+id/currentAudioTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/x_sm"
@@ -117,10 +109,10 @@
             android:layout_height="@dimen/lg"
             android:contentDescription="@string/app_name"
             android:src="@drawable/skip_previous_ic"
-            app:layout_constraintBottom_toBottomOf="@id/audioTitle"
+            app:layout_constraintBottom_toBottomOf="@id/currentAudioTitle"
             app:layout_constraintEnd_toStartOf="@id/playOrPauseIcon"
-            app:layout_constraintStart_toEndOf="@id/audioTitle"
-            app:layout_constraintTop_toTopOf="@id/audioTitle"
+            app:layout_constraintStart_toEndOf="@id/currentAudioTitle"
+            app:layout_constraintTop_toTopOf="@id/currentAudioTitle"
             app:tint="@color/primaryColor" />
 
         <ImageView
@@ -148,4 +140,8 @@
             app:tint="@color/primaryColor" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/fragmentAudioDetailsLayout"
+        layout="@layout/fragment_audio_details" />
 </androidx.constraintlayout.widget.ConstraintLayout>
