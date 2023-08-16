@@ -1,9 +1,9 @@
 package t3h.android.vilishapp.adapters;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -12,7 +12,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
 
+import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.databinding.AudioItemLayoutBinding;
+import t3h.android.vilishapp.helpers.AppConstant;
+import t3h.android.vilishapp.helpers.AudioHelper;
 import t3h.android.vilishapp.helpers.ItemDiff;
 import t3h.android.vilishapp.models.Audio;
 
@@ -21,6 +24,8 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     private List<Audio> itemList, dataSource;
     private OnAudioItemClickListener onAudioItemClickListener;
     private DiffUtil.DiffResult diffResult;
+    private int resId;
+    private String contentDesc;
 
     public AudioAdapter(Context context) {
         this.context = context;
@@ -42,7 +47,6 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
     @Override
     public void onBindViewHolder(@NonNull AudioViewHolder holder, int position) {
-        Log.e("DNV", String.valueOf(position));
         holder.bindView(itemList.get(position));
     }
 
@@ -60,13 +64,69 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
             binding.audioItemLayout.setOnClickListener(v -> {
                 if (onAudioItemClickListener != null) {
-                    onAudioItemClickListener.onItemClick(itemList.get(getAdapterPosition()));
+                    onAudioItemClickListener.onItemClick(itemList.get(getAdapterPosition()), getAdapterPosition());
                 }
             });
+
+//            binding.playOrPauseIcon.setOnClickListener(v -> {
+//                if (binding.playOrPauseIcon.getContentDescription().equals(AppConstant.PLAY_ICON)) {
+//                    contentDesc = AppConstant.PAUSE_ICON;
+//                    resId = R.drawable.pause_circle_blue_outline_ic;
+//                } else {
+//                    contentDesc = AppConstant.PLAY_ICON;
+//                    resId = R.drawable.play_circle_blue_outline_ic;
+//                }
+//                binding.playOrPauseIcon.setContentDescription(contentDesc);
+//                binding.playOrPauseIcon.setImageResource(resId);
+
+//                if (onAudioItemClickListener != null) {
+//                    onAudioItemClickListener.onPlayOrPauseIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
+//                            binding.playOrPauseIcon);
+//                }
+//            });
+
+//            binding.bookmarkIcon.setOnClickListener(v -> {
+//                if (binding.bookmarkIcon.getContentDescription().equals(AppConstant.BOOKMARK_BORDER_ICON)) {
+//                    contentDesc = AppConstant.BOOKMARK_ICON;
+//                    resId = R.drawable.blue_bookmark_ic;
+//                } else {
+//                    contentDesc = AppConstant.BOOKMARK_BORDER_ICON;
+//                    resId = R.drawable.bookmark_blue_border_ic;
+//                }
+//                binding.bookmarkIcon.setContentDescription(contentDesc);
+//                binding.bookmarkIcon.setImageResource(resId);
+
+//                if (onAudioItemClickListener != null) {
+//                    onAudioItemClickListener.onPlayOrPauseIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
+//                            binding.bookmarkIcon);
+//                }
+//            });
         }
 
         public void bindView(Audio audioInfo) {
             binding.audioTitle.setText(audioInfo.getName());
+            // init audio duration
+            initAudioDuration(audioInfo);
+            // init play/pause icon
+
+            // init bookmark icon
+
+            // init download/trash icon
+
+        }
+
+        private void initAudioDuration(Audio audioInfo) {
+            AudioHelper.getAudioDuration(audioInfo.getAudioFileFromFirebase(), new AudioHelper.DurationCallback() {
+                @Override
+                public void onDurationReceived(String strDuration) {
+                    binding.durationTxt.setText(strDuration);
+                }
+
+                @Override
+                public void onDurationError() {
+                    binding.durationTxt.setText(AppConstant.DURATION_DEFAULT);
+                }
+            });
         }
     }
 
@@ -89,6 +149,8 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     }
 
     public interface OnAudioItemClickListener {
-        void onItemClick(Audio item);
+        void onItemClick(Audio item, int position);
+
+        void onPlayOrPauseIconClick(Audio item, int position, ImageView icon);
     }
 }
