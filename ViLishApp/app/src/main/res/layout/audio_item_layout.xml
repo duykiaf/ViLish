@@ -11,7 +11,7 @@
     android:paddingHorizontal="@dimen/xx_sm">
 
     <ImageView
-        android:id="@+id/playIcon"
+        android:id="@+id/playOrPauseIcon"
         android:layout_width="@dimen/lg"
         android:layout_height="@dimen/lg"
         android:contentDescription="@string/play_icon"
@@ -29,7 +29,7 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/bookmarkIcon"
-        app:layout_constraintStart_toEndOf="@id/playIcon"
+        app:layout_constraintStart_toEndOf="@id/playOrPauseIcon"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
