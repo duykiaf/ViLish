@@ -105,9 +105,10 @@ public class TopicsListFragment extends Fragment {
             reloadListAfterSearch();
         });
         topicAdapter.setOnTopicItemClickListener(item -> {
-            Bundle topicIdBundle = new Bundle();
-            topicIdBundle.putString(AppConstant.TOPIC_ID, item.getId());
-            navController.navigate(R.id.action_topicsListFragment_to_audioListFragment, topicIdBundle);
+            Bundle bundle = new Bundle();
+            bundle.putString(AppConstant.TOPIC_ID, item.getId());
+            bundle.putString(AppConstant.TOPIC_NAME, item.getName());
+            navController.navigate(R.id.action_topicsListFragment_to_audioListFragment, bundle);
         });
     }
 
