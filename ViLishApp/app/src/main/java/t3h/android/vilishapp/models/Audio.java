@@ -1,5 +1,6 @@
 package t3h.android.vilishapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -14,9 +15,7 @@ import java.io.Serializable;
 public class Audio implements Serializable {
     @PrimaryKey
     @SerializedName("id")
-    private int intId;
-
-    @SerializedName("audio_str_id")
+    @NonNull
     private String id;
 
     @SerializedName("name")
@@ -43,23 +42,15 @@ public class Audio implements Serializable {
     public Audio() {
     }
 
-    public Audio(String audioStrId, String name, String audioFileFromDevice, String lyrics,
+    public Audio(String id, String name, String audioFileFromDevice, String lyrics,
                  String translations, String topicId, String topicName) {
-        id = audioStrId;
+        this.id = id;
         this.name = name;
         this.audioFileFromDevice = audioFileFromDevice;
         this.lyrics = lyrics;
         this.translations = translations;
         this.topicId = topicId;
         this.topicName = topicName;
-    }
-
-    public int getIntId() {
-        return intId;
-    }
-
-    public void setIntId(int intId) {
-        this.intId = intId;
     }
 
     public String getId() {
