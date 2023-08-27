@@ -16,8 +16,11 @@ public interface BookmarksDao {
     @Query("select * from bookmarks")
     LiveData<List<Audio>> getAllList();
 
+    @Query("select id from bookmarks")
+    LiveData<List<String>> getBookmarkAudioIds();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long addBookmark(Audio audio);
+    void addBookmark(Audio audio);
 
     @Delete
     int deleteBookmark(Audio audio);
