@@ -24,8 +24,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     private List<Audio> itemList, dataSource;
     private OnAudioItemClickListener onAudioItemClickListener;
     private DiffUtil.DiffResult diffResult;
-    private int resId;
-    private String contentDesc;
+    private List<String> bookmarkAudioIds;
 
     public AudioAdapter(Context context) {
         this.context = context;
@@ -35,6 +34,10 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
     public void setOnAudioItemClickListener(OnAudioItemClickListener listener) {
         onAudioItemClickListener = listener;
+    }
+
+    public void setBookmarkAudioIds(List<String> bookmarkAudioIds) {
+        this.bookmarkAudioIds = bookmarkAudioIds;
     }
 
     @NonNull
@@ -68,39 +71,12 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                 }
             });
 
-//            binding.playOrPauseIcon.setOnClickListener(v -> {
-//                if (binding.playOrPauseIcon.getContentDescription().equals(AppConstant.PLAY_ICON)) {
-//                    contentDesc = AppConstant.PAUSE_ICON;
-//                    resId = R.drawable.pause_circle_blue_outline_ic;
-//                } else {
-//                    contentDesc = AppConstant.PLAY_ICON;
-//                    resId = R.drawable.play_circle_blue_outline_ic;
-//                }
-//                binding.playOrPauseIcon.setContentDescription(contentDesc);
-//                binding.playOrPauseIcon.setImageResource(resId);
-
-//                if (onAudioItemClickListener != null) {
-//                    onAudioItemClickListener.onPlayOrPauseIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
-//                            binding.playOrPauseIcon);
-//                }
-//            });
-
-//            binding.bookmarkIcon.setOnClickListener(v -> {
-//                if (binding.bookmarkIcon.getContentDescription().equals(AppConstant.BOOKMARK_BORDER_ICON)) {
-//                    contentDesc = AppConstant.BOOKMARK_ICON;
-//                    resId = R.drawable.blue_bookmark_ic;
-//                } else {
-//                    contentDesc = AppConstant.BOOKMARK_BORDER_ICON;
-//                    resId = R.drawable.bookmark_blue_border_ic;
-//                }
-//                binding.bookmarkIcon.setContentDescription(contentDesc);
-//                binding.bookmarkIcon.setImageResource(resId);
-
-//                if (onAudioItemClickListener != null) {
-//                    onAudioItemClickListener.onPlayOrPauseIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
-//                            binding.bookmarkIcon);
-//                }
-//            });
+            binding.bookmarkIcon.setOnClickListener(v -> {
+                if (onAudioItemClickListener != null) {
+                    onAudioItemClickListener.onIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
+                            binding.bookmarkIcon);
+                }
+            });
         }
 
         public void bindView(Audio audioInfo) {
@@ -110,6 +86,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
             // init play/pause icon
 
             // init bookmark icon
+            initBookmarkIcon(audioInfo);
 
             // init download/trash icon
 
@@ -127,6 +104,18 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                     binding.durationTxt.setText(AppConstant.DURATION_DEFAULT);
                 }
             });
+        }
+
+        private void initBookmarkIcon(Audio audioInfo) {
+            if (bookmarkAudioIds != null) {
+                for (String id : bookmarkAudioIds) {
+                    if (audioInfo.getId().equals(id)) {
+                        binding.bookmarkIcon.setContentDescription(context.getString(R.string.bookmark_icon));
+                        binding.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -151,6 +140,6 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     public interface OnAudioItemClickListener {
         void onItemClick(Audio item, int position);
 
-        void onPlayOrPauseIconClick(Audio item, int position, ImageView icon);
+        void onIconClick(Audio item, int position, ImageView icon);
     }
 }

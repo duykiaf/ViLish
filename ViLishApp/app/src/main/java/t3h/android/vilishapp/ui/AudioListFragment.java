@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.adapters.AudioAdapter;
 import t3h.android.vilishapp.adapters.FragmentAdapter;
@@ -42,6 +48,7 @@ import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.AudioHelper;
 import t3h.android.vilishapp.helpers.ExoplayerHelper;
 import t3h.android.vilishapp.models.Audio;
+import t3h.android.vilishapp.repositories.AudioRepository;
 import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
 public class AudioListFragment extends Fragment {
@@ -51,11 +58,14 @@ public class AudioListFragment extends Fragment {
     private String topicId;
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
-    private int visibility, playOrPauseIconId, currentMediaItemIndex;
+    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex;
+    private String contentDesc;
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
     private AudioViewModel audioViewModel;
     private boolean isTheFirstTimeInitAudioControlsLayout = true;
+    private Disposable disposable;
+    private AudioRepository audioRepository;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,6 +79,7 @@ public class AudioListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
+        audioRepository = new AudioRepository(requireActivity().getApplication());
         initTopAppBar();
         topicId = requireArguments().getString(AppConstant.TOPIC_ID);
         if (topicId != null) {
@@ -132,7 +143,10 @@ public class AudioListFragment extends Fragment {
                                 visibility = View.VISIBLE;
                             }
                             binding.noDataTxt.setVisibility(visibility);
-                            audioAdapter.updateItemList(audioListByTopicId);
+                            audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
+                                audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
+                                audioAdapter.updateItemList(audioListByTopicId);
+                            });
                             binding.progressBar.setVisibility(View.GONE);
                         }
 
@@ -238,11 +252,7 @@ public class AudioListFragment extends Fragment {
         super.onResume();
         binding.appBarFragment.topAppBar.setOnMenuItemClickListener(this::onMenuItemClick);
         binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
-        binding.closeSearchLayout.setOnClickListener(v -> {
-            binding.searchEdtLayout.setVisibility(View.GONE);
-            binding.closeSearchLayout.setVisibility(View.GONE);
-            reloadAudioListAfterSearch();
-        });
+        closeSearchLayout();
 
         audioAdapter.setOnAudioItemClickListener(new AudioAdapter.OnAudioItemClickListener() {
             @Override
@@ -252,6 +262,7 @@ public class AudioListFragment extends Fragment {
                 // open AudioDetailsFragment
                 openAudioDetailsScreen();
 
+                // play/pause logic
                 if (!player.isPlaying()) { // pause or stop
                     if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimeInitAudioControlsLayout)) {
                         player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
@@ -271,11 +282,41 @@ public class AudioListFragment extends Fragment {
             }
 
             @Override
-            public void onPlayOrPauseIconClick(Audio item, int position, ImageView icon) {
+            public void onIconClick(Audio item, int position, ImageView icon) {
                 switch (icon.getId()) {
                     case R.id.playOrPauseIcon:
                         break;
                     case R.id.bookmarkIcon:
+                        if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
+                            contentDesc = getString(R.string.bookmark_icon);
+                            resId = R.drawable.blue_bookmark_ic;
+                            // add bookmark here
+                            Completable addBookmarkObservable = addBookmark(item);
+                            CompletableObserver completableObserver = completableObserver();
+                            if (addBookmarkObservable != null) {
+                                addBookmarkObservable.subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(completableObserver);
+                            } else {
+                                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        if (icon.getContentDescription().equals(getString(R.string.bookmark_icon))) {
+                            contentDesc = getString(R.string.bookmark_border_icon);
+                            resId = R.drawable.bookmark_blue_border_ic;
+                            // remove bookmark here
+                            Completable deleteBookmarkObservable = deleteBookmark(item);
+                            CompletableObserver deleteBookmarkObserver = deleteBookmarkObserver();
+                            if (deleteBookmarkObservable != null) {
+                                deleteBookmarkObservable.subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(deleteBookmarkObserver);
+                            } else {
+                                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        icon.setImageResource(resId);
+                        icon.setContentDescription(contentDesc);
                         break;
                 }
             }
@@ -285,6 +326,81 @@ public class AudioListFragment extends Fragment {
         binding.fragmentAudioDetailsLayout.topAppBar.setNavigationOnClickListener(v ->
                 binding.fragmentAudioDetailsLayout.audioDetailsLayout.setVisibility(View.GONE)
         );
+    }
+
+    private void closeSearchLayout() {
+        binding.closeSearchLayout.setOnClickListener(v -> {
+            binding.searchEdtLayout.setVisibility(View.GONE);
+            binding.closeSearchLayout.setVisibility(View.GONE);
+            reloadAudioListAfterSearch();
+        });
+    }
+
+    private Completable addBookmark(Audio item) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                // logic add bookmark here
+                audioRepository.addBookmark(item);
+                emitter.onComplete();
+            }
+        });
+    }
+
+    private CompletableObserver completableObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private Completable deleteBookmark(Audio item) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                // logic add bookmark here
+                int deleteRow = audioRepository.deleteBookmark(item);
+                if (deleteRow > 0) {
+                    // complete callback
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(new Exception());
+                }
+            }
+        });
+    }
+
+    private CompletableObserver deleteBookmarkObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 
     // prepare and play
@@ -373,6 +489,11 @@ public class AudioListFragment extends Fragment {
                 binding.closeSearchLayout.setVisibility(visibility);
                 return true;
             case R.id.bookmarksItem:
+                audioRepository.getBookmarkList().observe(requireActivity(), audioList -> {
+                    for (Audio bookmarkAudio : audioList) {
+                        Log.e("DNV", bookmarkAudio.getName());
+                    }
+                });
                 return true;
             case R.id.goToTopItem:
                 binding.audiosRcv.smoothScrollToPosition(0);
@@ -383,7 +504,7 @@ public class AudioListFragment extends Fragment {
 
     private void reloadAudioListAfterSearch() {
         binding.searchEdt.setText("");
-        initAudioListByTopicId();
+        getAudioSearchList("");
     }
 
     private void searchEdtTextChanged() {
@@ -432,6 +553,11 @@ public class AudioListFragment extends Fragment {
             player.stop();
         }
         player.release();
+
+        if (disposable != null) {
+            disposable.dispose();
+        }
+
         binding = null;
     }
 }
