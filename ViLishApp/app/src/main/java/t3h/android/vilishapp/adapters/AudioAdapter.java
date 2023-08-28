@@ -113,6 +113,9 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                         binding.bookmarkIcon.setContentDescription(context.getString(R.string.bookmark_icon));
                         binding.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
                         break;
+                    } else {
+                        binding.bookmarkIcon.setContentDescription(context.getString(R.string.bookmark_border_icon));
+                        binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
                     }
                 }
             }
