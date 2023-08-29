@@ -22,6 +22,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
@@ -176,7 +177,60 @@ public class AudioListFragment extends Fragment {
     private void playerControls() {
         playerControlsAtAudioListScreen();
         playerControlsAtAudioDetailsScreen();
-        ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//        ExoplayerHelper.playerListener(player, binding, audioViewModel);
+        playerListener();
+    }
+
+    private void playerListener() {
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                // show the playing audio title
+                assert mediaItem != null;
+                binding.currentAudioTitle.setText(mediaItem.mediaMetadata.title);
+                binding.fragmentAudioDetailsLayout.audioTitle.setText(mediaItem.mediaMetadata.title);
+
+                initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
+
+                // show audio lyrics and translations
+                audioViewModel.setAudioLyrics((String) mediaItem.mediaMetadata.description);
+                audioViewModel.setAudioTranslations((String) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
+
+                // show pause icon
+                initPlayOrPauseIcon(true);
+
+                // init seek bar audio duration (AudioDetailsFragment)
+                initSeekBarAudioDuration(player);
+
+                if (!player.isPlaying()) {
+                    player.play();
+                }
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == ExoPlayer.STATE_READY && player.isPlaying()) {
+                    // show the playing audio title
+                    binding.currentAudioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+                    binding.fragmentAudioDetailsLayout.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+
+                    initBookmarkIcon(player.getCurrentMediaItem().mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
+
+                    // show audio lyrics and translations
+                    audioViewModel.setAudioLyrics((String) player.getCurrentMediaItem().mediaMetadata.description);
+                    audioViewModel.setAudioTranslations((String) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
+
+                    // show pause audio icon
+                    initPlayOrPauseIcon(true);
+
+                    // init seek bar audio duration (AudioDetailsFragment)
+                    initSeekBarAudioDuration(player);
+                } else {
+                    // show play audio icon
+                    initPlayOrPauseIcon(false);
+                }
+            }
+        });
     }
 
     private void playerControlsAtAudioListScreen() {
@@ -259,9 +313,6 @@ public class AudioListFragment extends Fragment {
             public void onItemClick(Audio item, int position) {
                 currentMediaItemIndex = player.getCurrentMediaItemIndex();
 
-                // open AudioDetailsFragment
-                openAudioDetailsScreen();
-
                 // play/pause logic
                 if (!player.isPlaying()) { // pause or stop
                     if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimeInitAudioControlsLayout)) {
@@ -276,6 +327,9 @@ public class AudioListFragment extends Fragment {
                     }
                     prepareAndPlayAudio();
                 }
+
+                // open AudioDetailsFragment
+                openAudioDetailsScreen();
 
                 // show bottom audio controls
                 binding.audioControlLayout.setVisibility(View.VISIBLE);
@@ -417,6 +471,7 @@ public class AudioListFragment extends Fragment {
             binding.playOrPauseIcon.setImageResource(R.drawable.pause_circle_blue_outline_ic);
             initSeekBarAudioDuration(player);
         }
+        initBookmarkIcon(null);
         initViewPager();
     }
 
@@ -456,6 +511,28 @@ public class AudioListFragment extends Fragment {
                 seekBar.setProgress(progressValue);
                 binding.fragmentAudioDetailsLayout.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer(progressValue));
                 player.seekTo(progressValue);
+            }
+        });
+    }
+
+    private void initBookmarkIcon(String audioId) {
+        String getCurrentAudioId;
+        if (audioId == null) {
+            getCurrentAudioId =
+                    Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID);
+        } else {
+            getCurrentAudioId = audioId;
+        }
+        audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
+            for (String id : bookmarkAudioIds) {
+                if (getCurrentAudioId.equals(id)) {
+                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setContentDescription(getString(R.string.bookmark_icon));
+                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
+                    break;
+                } else {
+                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setContentDescription(getString(R.string.bookmark_border_icon));
+                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
+                }
             }
         });
     }
