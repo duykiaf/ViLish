@@ -146,14 +146,14 @@ public class PlayerService extends Service {
                 if (player.hasPreviousMediaItem()) {
                     player.seekToPrevious();
                     sendNotification(); // update notification
-                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
                 }
                 break;
             case AppConstant.ACTION_PAUSE:
                 if (player.isPlaying()) {
                     player.pause();
                     sendNotification();
-                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
                 }
                 break;
             case AppConstant.ACTION_PLAY:
@@ -161,21 +161,21 @@ public class PlayerService extends Service {
                     player.prepare();
                     player.play();
                     sendNotification();
-                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
                 }
                 break;
             case AppConstant.ACTION_NEXT:
                 if (player.hasNextMediaItem()) {
                     player.seekToNext();
                     sendNotification();
-                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//                    ExoplayerHelper.playerListener(player, binding, audioViewModel);
                 }
                 break;
             case AppConstant.ACTION_CLEAR_NOTIFICATION:
                 stopSelf();
                 break;
         }
-        ExoplayerHelper.playerListener(player, binding, audioViewModel);
+//        ExoplayerHelper.playerListener(player, binding, audioViewModel);
     }
 
     @Override
