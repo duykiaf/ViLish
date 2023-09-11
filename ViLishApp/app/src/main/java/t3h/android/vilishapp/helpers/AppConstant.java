@@ -36,5 +36,9 @@ public class AppConstant {
     public static final String ADD_BOOKMARK_FAILED = "Add bookmark failed";
     public static final String REMOVE_BOOKMARK_SUCCESS = "Remove bookmark successfully";
     public static final String REMOVE_BOOKMARK_FAILED = "Remove bookmark failed";
+    public static final String DOWNLOAD_ICON = "Download icon";
+    public static final String CHECK_CIRCLE_ICON = "Check circle icon";
+    public static final String DOWNLOAD_MESS = "Downloading...";
+    public static final int MAX_DOWNLOAD_FILES = 10;
     public static int REQUEST_CODE = 6798;
 }
