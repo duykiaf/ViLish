@@ -130,9 +130,6 @@ public class TopicsListFragment extends Fragment {
                     return true;
                 case R.id.bookmarksItem:
                     return true;
-                case R.id.goToTopItem:
-                    binding.topicsRcv.smoothScrollToPosition(0);
-                    return true;
             }
             return false;
         });
