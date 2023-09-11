@@ -77,6 +77,13 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                             binding.bookmarkIcon);
                 }
             });
+
+            binding.downloadIcon.setOnClickListener(v -> {
+                if (onAudioItemClickListener != null) {
+                    onAudioItemClickListener.onIconClick(itemList.get(getAdapterPosition()), getAdapterPosition(),
+                            binding.downloadIcon);
+                }
+            });
         }
 
         public void bindView(Audio audioInfo) {
