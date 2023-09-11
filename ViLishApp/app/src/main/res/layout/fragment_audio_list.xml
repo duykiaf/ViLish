@@ -43,29 +43,74 @@
         app:layout_constraintEnd_toEndOf="@id/searchEdtLayout"
         app:layout_constraintTop_toTopOf="@id/searchEdtLayout" />
 
-    <TextView
-        android:id="@+id/noDataTxt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/md"
-        android:text="@string/no_data"
-        android:textColor="@color/black"
-        android:textSize="@dimen/x_md_txt"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/searchEdtLayout"
-        app:layout_constraintStart_toStartOf="@id/searchEdtLayout"
-        app:layout_constraintTop_toBottomOf="@id/searchEdtLayout" />
-
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="@dimen/md"
         android:layout_height="@dimen/md"
         android:layout_marginTop="@dimen/md"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@id/noDataTxt"
-        app:layout_constraintStart_toStartOf="@id/noDataTxt"
-        app:layout_constraintTop_toBottomOf="@id/noDataTxt"
+        app:layout_constraintEnd_toEndOf="@id/searchEdtLayout"
+        app:layout_constraintStart_toStartOf="@id/searchEdtLayout"
+        app:layout_constraintTop_toBottomOf="@id/searchEdtLayout"
         tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/messageTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/md"
+        android:text="@string/no_data"
+        android:textColor="@color/black"
+        android:textSize="@dimen/x_md_txt"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/progressBar"
+        app:layout_constraintStart_toStartOf="@id/progressBar"
+        app:layout_constraintTop_toBottomOf="@id/progressBar" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/selectedNotificationLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/xx_sm"
+        android:layout_marginTop="@dimen/xx_sm"
+        android:background="@drawable/card_bg"
+        android:padding="@dimen/xx_sm"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/audiosRcv"
+        app:layout_constraintTop_toBottomOf="@id/messageTxt">
+
+        <ImageView
+            android:id="@+id/closeNotification"
+            android:layout_width="@dimen/x_md"
+            android:layout_height="@dimen/x_md"
+            android:src="@drawable/close_ic"
+            app:layout_constraintBottom_toBottomOf="@id/selectedNotificationLayout"
+            app:layout_constraintStart_toStartOf="@id/selectedNotificationLayout"
+            app:layout_constraintTop_toTopOf="@id/selectedNotificationLayout" />
+
+        <TextView
+            android:id="@+id/itemCounterSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/xx_sm"
+            android:textColor="@color/black"
+            android:textSize="@dimen/md_txt"
+            app:layout_constraintBottom_toBottomOf="@id/selectedNotificationLayout"
+            app:layout_constraintStart_toEndOf="@id/closeNotification"
+            app:layout_constraintTop_toTopOf="@id/selectedNotificationLayout" />
+
+        <ImageView
+            android:id="@+id/download"
+            android:layout_width="@dimen/x_md"
+            android:layout_height="@dimen/x_md"
+            android:src="@drawable/white_download_ic"
+            app:layout_constraintBottom_toBottomOf="@id/selectedNotificationLayout"
+            app:layout_constraintEnd_toEndOf="@id/selectedNotificationLayout"
+            app:layout_constraintTop_toTopOf="@id/selectedNotificationLayout"
+            app:tint="@color/primaryColor" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/audiosRcv"
@@ -73,7 +118,7 @@
         android:layout_height="0dp"
         android:paddingVertical="@dimen/x_sm"
         app:layout_constraintBottom_toTopOf="@id/audioControlLayout"
-        app:layout_constraintTop_toBottomOf="@id/searchEdtLayout"
+        app:layout_constraintTop_toBottomOf="@id/selectedNotificationLayout"
         tools:listitem="@layout/audio_item_layout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

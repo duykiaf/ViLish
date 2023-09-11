@@ -32,7 +32,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/xx_sm"
         android:background="@drawable/card_bg"
-        android:padding="@dimen/md">
+        android:paddingHorizontal="@dimen/md"
+        android:paddingVertical="@dimen/x_sm">
 
         <TextView
             android:id="@+id/audioTitle"
@@ -49,16 +50,29 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/audioSpeed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/x_sm"
+            android:text="@string/speed_default"
+            android:textColor="@color/primaryColor"
+            android:textSize="@dimen/sm_txt"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/seekBar"
+            app:layout_constraintEnd_toEndOf="@id/seekBar"
+            app:layout_constraintTop_toBottomOf="@id/audioTitle" />
+
         <SeekBar
             android:id="@+id/seekBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/md"
+            android:layout_marginTop="@dimen/x_sm"
             android:progressTint="@color/primaryColor"
             android:thumbTint="@color/primaryColor"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/audioTitle" />
+            app:layout_constraintTop_toBottomOf="@id/audioSpeed" />
 
         <TextView
             android:id="@+id/audioCurrentTime"
@@ -83,65 +97,68 @@
             app:layout_constraintEnd_toEndOf="@id/seekBar"
             app:layout_constraintTop_toBottomOf="@id/seekBar" />
 
-        <ImageView
-            android:id="@+id/bookmarkIcon"
-            android:layout_width="@dimen/x_md"
-            android:layout_height="@dimen/x_md"
-            android:layout_marginTop="@dimen/x_sm"
-            android:contentDescription="@string/bookmark_border_icon"
-            android:src="@drawable/bookmark_blue_border_ic"
+        <LinearLayout
+            android:id="@+id/controlIconsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/audioCurrentTime"
-            app:tint="@color/primaryColor" />
+            app:layout_constraintTop_toBottomOf="@id/audioCurrentTime">
 
-        <ImageView
-            android:id="@+id/previousIcon"
-            android:layout_width="@dimen/lg"
-            android:layout_height="@dimen/lg"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/skip_previous_ic"
-            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
-            app:layout_constraintEnd_toStartOf="@id/playOrPauseIcon"
-            app:layout_constraintStart_toEndOf="@id/bookmarkIcon"
-            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
-            app:tint="@color/primaryColor" />
+            <ImageView
+                android:id="@+id/bookmarkIcon"
+                android:layout_width="@dimen/x_md"
+                android:layout_height="@dimen/x_md"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/bookmark_border_icon"
+                android:src="@drawable/bookmark_blue_border_ic"
+                app:tint="@color/primaryColor" />
 
-        <ImageView
-            android:id="@+id/playOrPauseIcon"
-            android:layout_width="@dimen/lg"
-            android:layout_height="@dimen/lg"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/pause_circle_blue_outline_ic"
-            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
-            app:layout_constraintEnd_toStartOf="@id/nextIcon"
-            app:layout_constraintStart_toEndOf="@id/previousIcon"
-            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
-            app:tint="@color/primaryColor" />
+            <ImageView
+                android:id="@+id/previousIcon"
+                android:layout_width="@dimen/lg"
+                android:layout_height="@dimen/lg"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/skip_previous_ic"
+                app:tint="@color/primaryColor" />
 
-        <ImageView
-            android:id="@+id/nextIcon"
-            android:layout_width="@dimen/lg"
-            android:layout_height="@dimen/lg"
-            android:contentDescription="@string/app_name"
-            android:src="@drawable/skip_next_ic"
-            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
-            app:layout_constraintEnd_toStartOf="@id/audioSpeed"
-            app:layout_constraintStart_toEndOf="@id/playOrPauseIcon"
-            app:layout_constraintTop_toTopOf="@id/bookmarkIcon"
-            app:tint="@color/primaryColor" />
+            <ImageView
+                android:id="@+id/playOrPauseIcon"
+                android:layout_width="@dimen/lg"
+                android:layout_height="@dimen/lg"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/pause_circle_blue_outline_ic"
+                app:tint="@color/primaryColor" />
 
-        <TextView
-            android:id="@+id/audioSpeed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/speed_default"
-            android:textColor="@color/primaryColor"
-            android:textSize="@dimen/sm_txt"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="@id/bookmarkIcon"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/bookmarkIcon" />
+            <ImageView
+                android:id="@+id/nextIcon"
+                android:layout_width="@dimen/lg"
+                android:layout_height="@dimen/lg"
+                android:layout_weight="1"
+                android:contentDescription="@string/app_name"
+                android:src="@drawable/skip_next_ic"
+                app:tint="@color/primaryColor" />
+
+            <ImageView
+                android:id="@+id/downloadIc"
+                android:layout_width="@dimen/x_md"
+                android:layout_height="@dimen/x_md"
+                android:layout_gravity="center_vertical"
+                android:contentDescription="@string/bookmark_border_icon"
+                android:src="@drawable/white_download_ic"
+                app:tint="@color/primaryColor" />
+
+            <ProgressBar
+                android:id="@+id/audioDetailsProgressBar"
+                android:layout_width="@dimen/x_md"
+                android:layout_height="@dimen/x_md"
+                android:layout_gravity="center_vertical"
+                android:visibility="gone"
+                tools:ignore="MissingConstraints" />
+
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
