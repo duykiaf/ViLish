@@ -8,14 +8,14 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/bookmarksItem"
-        android:icon="@drawable/bookmarks_ic"
-        android:title="@string/bookmarks"
+        android:id="@+id/downloadItem"
+        android:icon="@drawable/white_download_ic"
+        android:title="@string/downloaded_audios"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/goToTopItem"
-        android:icon="@drawable/arrow_upward_ic"
-        android:title="@string/go_to_top"
+        android:id="@+id/bookmarksItem"
+        android:icon="@drawable/bookmarks_ic"
+        android:title="@string/bookmarks"
         app:showAsAction="ifRoom" />
 </menu>
