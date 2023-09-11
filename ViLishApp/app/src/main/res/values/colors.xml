@@ -11,4 +11,6 @@
     <color name="cardBackgroundColor">#4E90FE</color>
     <color name="iconControlColor">#0060FF</color>
     <color name="secondary">#cccccc</color>
+    <color name="green">#48CF4E</color>
+    <color name="lightRed">#FF6584</color>
 </resources>
