@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    android:visibility="gone"
     tools:context=".ui.AudioDetailsFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -142,7 +141,7 @@
                 app:tint="@color/primaryColor" />
 
             <ImageView
-                android:id="@+id/downloadIc"
+                android:id="@+id/downloadOrTrashIc"
                 android:layout_width="@dimen/x_md"
                 android:layout_height="@dimen/x_md"
                 android:layout_gravity="center_vertical"
