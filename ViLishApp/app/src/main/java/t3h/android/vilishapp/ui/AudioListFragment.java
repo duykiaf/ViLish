@@ -1,7 +1,6 @@
 package t3h.android.vilishapp.ui;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -10,7 +9,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,7 +22,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
-import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +30,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,10 +41,8 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.adapters.AudioAdapter;
-import t3h.android.vilishapp.adapters.FragmentAdapter;
 import t3h.android.vilishapp.databinding.FragmentAudioListBinding;
 import t3h.android.vilishapp.helpers.AppConstant;
-import t3h.android.vilishapp.helpers.AudioHelper;
 import t3h.android.vilishapp.helpers.ExoplayerHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
@@ -59,7 +55,7 @@ public class AudioListFragment extends Fragment {
     private String topicId;
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
-    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex;
+    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter;
     private String contentDesc;
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
@@ -67,6 +63,7 @@ public class AudioListFragment extends Fragment {
     private boolean isTheFirstTimeInitAudioControlsLayout = true;
     private Disposable disposable;
     private AudioRepository audioRepository;
+    private HashMap<String, String> audioUrlSelected = new HashMap<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -81,6 +78,14 @@ public class AudioListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         audioRepository = new AudioRepository(requireActivity().getApplication());
+        audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
+
+        // assign exoplayer
+        player = new ExoPlayer.Builder(requireContext()).build();
+        player.setRepeatMode(Player.REPEAT_MODE_ALL);
+
+        audioViewModel.setExoPlayerMutableLiveData(player);
+
         initTopAppBar();
         topicId = requireArguments().getString(AppConstant.TOPIC_ID);
         if (topicId != null) {
@@ -92,15 +97,6 @@ public class AudioListFragment extends Fragment {
         } else {
             Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_LONG).show();
         }
-
-        // assign exoplayer
-        player = new ExoPlayer.Builder(requireContext()).build();
-        player.setRepeatMode(Player.REPEAT_MODE_ALL);
-
-        audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
-
-        // player controls method
-        playerControls();
     }
 
     private void initTopAppBar() {
@@ -143,7 +139,7 @@ public class AudioListFragment extends Fragment {
                             } else {
                                 visibility = View.VISIBLE;
                             }
-                            binding.noDataTxt.setVisibility(visibility);
+                            binding.messageTxt.setVisibility(visibility);
                             audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
                                 audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
                                 audioAdapter.updateItemList(audioListByTopicId);
@@ -158,7 +154,7 @@ public class AudioListFragment extends Fragment {
                     });
                 } else {
                     binding.progressBar.setVisibility(View.GONE);
-                    binding.noDataTxt.setVisibility(View.VISIBLE);
+                    binding.messageTxt.setVisibility(View.VISIBLE);
                 }
             }
 
@@ -174,67 +170,25 @@ public class AudioListFragment extends Fragment {
         Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        binding.appBarFragment.topAppBar.setOnMenuItemClickListener(this::onMenuItemClick);
+        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+        playerControls();
+        closeSearchLayout();
+        onAudioItemClick();
+        onDownloadIcClickListener();
+        closeItemCounterNotification();
+    }
+
     private void playerControls() {
-        playerControlsAtAudioListScreen();
-        playerControlsAtAudioDetailsScreen();
-//        ExoplayerHelper.playerListener(player, binding, audioViewModel);
-        playerListener();
+        playerControlsAtAudioListScreen(player);
+        playerListener(player);
     }
 
-    private void playerListener() {
-        player.addListener(new Player.Listener() {
-            @Override
-            public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
-                // show the playing audio title
-                assert mediaItem != null;
-                binding.currentAudioTitle.setText(mediaItem.mediaMetadata.title);
-                binding.fragmentAudioDetailsLayout.audioTitle.setText(mediaItem.mediaMetadata.title);
-
-                initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
-
-                // show audio lyrics and translations
-                audioViewModel.setAudioLyrics((String) mediaItem.mediaMetadata.description);
-                audioViewModel.setAudioTranslations((String) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
-
-                // show pause icon
-                initPlayOrPauseIcon(true);
-
-                // init seek bar audio duration (AudioDetailsFragment)
-                initSeekBarAudioDuration(player);
-
-                if (!player.isPlaying()) {
-                    player.play();
-                }
-            }
-
-            @Override
-            public void onPlaybackStateChanged(int playbackState) {
-                if (playbackState == ExoPlayer.STATE_READY && player.isPlaying()) {
-                    // show the playing audio title
-                    binding.currentAudioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
-                    binding.fragmentAudioDetailsLayout.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
-
-                    initBookmarkIcon(player.getCurrentMediaItem().mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
-
-                    // show audio lyrics and translations
-                    audioViewModel.setAudioLyrics((String) player.getCurrentMediaItem().mediaMetadata.description);
-                    audioViewModel.setAudioTranslations((String) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
-
-                    // show pause audio icon
-                    initPlayOrPauseIcon(true);
-
-                    // init seek bar audio duration (AudioDetailsFragment)
-                    initSeekBarAudioDuration(player);
-                } else {
-                    // show play audio icon
-                    initPlayOrPauseIcon(false);
-                }
-            }
-        });
-    }
-
-    private void playerControlsAtAudioListScreen() {
-        binding.audioControlLayout.setOnClickListener(v -> openAudioDetailsScreen());
+    private void playerControlsAtAudioListScreen(ExoPlayer player) {
+        binding.audioControlLayout.setOnClickListener(v -> navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment));
 
         binding.previousIcon.setOnClickListener(v -> {
             if (player.hasPreviousMediaItem()) {
@@ -261,34 +215,44 @@ public class AudioListFragment extends Fragment {
         });
     }
 
-    private void playerControlsAtAudioDetailsScreen() {
-        binding.fragmentAudioDetailsLayout.previousIcon.setOnClickListener(v -> {
-            if (player.hasPreviousMediaItem()) {
-                player.seekToPrevious();
-                updatePlayerPositionProgress(player);
-            }
-        });
+    private void playerListener(ExoPlayer player) {
+        player.addListener(new Player.Listener() {
+            @Override
+            public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
+                // show the playing audio title
+                assert mediaItem != null;
+                binding.currentAudioTitle.setText(mediaItem.mediaMetadata.title);
 
-        binding.fragmentAudioDetailsLayout.nextIcon.setOnClickListener(v -> {
-            if (player.hasNextMediaItem()) {
-                player.seekToNext();
-                updatePlayerPositionProgress(player);
-            }
-        });
+                // show audio lyrics and translations
+                audioViewModel.setAudioLyrics((String) mediaItem.mediaMetadata.description);
+                audioViewModel.setAudioTranslations((String) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
 
-        // play/pause
-        binding.fragmentAudioDetailsLayout.playOrPauseIcon.setOnClickListener(v -> {
-            if (player.isPlaying()) {
-                player.pause();
-                initPlayOrPauseIcon(false);
-            } else {
-                player.play();
+                // show pause icon
                 initPlayOrPauseIcon(true);
+
+                if (!player.isPlaying()) {
+                    player.play();
+                }
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                if (playbackState == ExoPlayer.STATE_READY && player.isPlaying()) {
+                    // show the playing audio title
+                    binding.currentAudioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+
+                    // show audio lyrics and translations
+                    audioViewModel.setAudioLyrics((String) player.getCurrentMediaItem().mediaMetadata.description);
+                    audioViewModel.setAudioTranslations((String) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
+
+                    // show pause audio icon
+                    initPlayOrPauseIcon(true);
+                } else {
+                    // show play audio icon
+                    initPlayOrPauseIcon(false);
+                }
             }
         });
-
-        // set seek bar changed listener
-        seekBarChangedListener(player);
     }
 
     private void initPlayOrPauseIcon(boolean isPlaying) {
@@ -298,47 +262,57 @@ public class AudioListFragment extends Fragment {
             playOrPauseIconId = R.drawable.play_circle_blue_outline_ic;
         }
         binding.playOrPauseIcon.setImageResource(playOrPauseIconId);
-        binding.fragmentAudioDetailsLayout.playOrPauseIcon.setImageResource(playOrPauseIconId);
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        binding.appBarFragment.topAppBar.setOnMenuItemClickListener(this::onMenuItemClick);
-        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
-        closeSearchLayout();
-
+    private void onAudioItemClick() {
         audioAdapter.setOnAudioItemClickListener(new AudioAdapter.OnAudioItemClickListener() {
             @Override
             public void onItemClick(Audio item, int position) {
                 currentMediaItemIndex = player.getCurrentMediaItemIndex();
 
                 // play/pause logic
-                if (!player.isPlaying()) { // pause or stop
-                    if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimeInitAudioControlsLayout)) {
-                        player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
-                        prepareAndPlayAudio();
-                    }
-                    isTheFirstTimeInitAudioControlsLayout = false;
-                } else { // is playing
+                if (player.isPlaying()) { // is playing
                     if (currentMediaItemIndex != position) {
                         player.pause();
                         player.seekTo(position, 0);
                     }
-                    prepareAndPlayAudio();
+                    prepareAndPlayAudio(player);
+                } else { // pause or stop
+                    if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimeInitAudioControlsLayout)) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
+                        prepareAndPlayAudio(player);
+                    }
+                    isTheFirstTimeInitAudioControlsLayout = false;
                 }
 
                 // open AudioDetailsFragment
-                openAudioDetailsScreen();
-
-                // show bottom audio controls
-                binding.audioControlLayout.setVisibility(View.VISIBLE);
+                navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment);
             }
 
             @Override
             public void onIconClick(Audio item, int position, ImageView icon) {
                 switch (icon.getId()) {
-                    case R.id.playOrPauseIcon:
+                    case R.id.downloadIcon:
+                        binding.selectedNotificationLayout.setVisibility(View.VISIBLE);
+                        if (icon.getContentDescription().equals(AppConstant.DOWNLOAD_ICON)) {
+                            if (itemCounter < AppConstant.MAX_DOWNLOAD_FILES) {
+                                itemCounter++;
+                                contentDesc = AppConstant.CHECK_CIRCLE_ICON;
+                                resId = R.drawable.check_circle_ic;
+                                initDownloadOrCheckCircleIc(icon);
+                                updateItemCounterSelected();
+                                audioUrlSelected.put(item.getId(), item.getName());
+                            } else {
+                                Toast.makeText(requireContext(), "Bạn chỉ được phép tải 10 file mỗi lần!", Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
+                            audioUrlSelected.remove(item.getId());
+                            contentDesc = AppConstant.DOWNLOAD_ICON;
+                            resId = R.drawable.white_download_ic;
+                            initDownloadOrCheckCircleIc(icon);
+                            itemCounter--;
+                            updateItemCounterSelected();
+                        }
                         break;
                     case R.id.bookmarkIcon:
                         if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
@@ -375,11 +349,34 @@ public class AudioListFragment extends Fragment {
                 }
             }
         });
+    }
 
-        // exist audio details screen
-        binding.fragmentAudioDetailsLayout.topAppBar.setNavigationOnClickListener(v ->
-                binding.fragmentAudioDetailsLayout.audioDetailsLayout.setVisibility(View.GONE)
-        );
+    private void initDownloadOrCheckCircleIc(ImageView icon) {
+        icon.setImageResource(resId);
+        icon.setContentDescription(contentDesc);
+    }
+
+    private void updateItemCounterSelected() {
+        StringBuffer sb = new StringBuffer();
+        sb.append(itemCounter).append(requireContext().getString(R.string.selected_item));
+        binding.itemCounterSelected.setText(sb.toString());
+    }
+
+    private void onDownloadIcClickListener() {
+        binding.download.setOnClickListener(v -> {
+            binding.selectedNotificationLayout.setVisibility(View.GONE);
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.messageTxt.setVisibility(View.VISIBLE);
+            binding.messageTxt.setText(AppConstant.DOWNLOAD_MESS);
+        });
+    }
+
+    private void closeItemCounterNotification() {
+        binding.closeNotification.setOnClickListener(v -> {
+            binding.selectedNotificationLayout.setVisibility(View.GONE);
+            itemCounter = 0;
+            initAudioListByTopicId();
+        });
     }
 
     private void closeSearchLayout() {
@@ -458,97 +455,9 @@ public class AudioListFragment extends Fragment {
     }
 
     // prepare and play
-    private void prepareAndPlayAudio() {
+    private void prepareAndPlayAudio(ExoPlayer player) {
         player.prepare();
         player.play();
-    }
-
-    private void openAudioDetailsScreen() {
-        binding.fragmentAudioDetailsLayout.audioDetailsLayout.setVisibility(View.VISIBLE);
-        // checking if the player is playing
-        if (player.isPlaying()) {
-            binding.fragmentAudioDetailsLayout.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
-            binding.playOrPauseIcon.setImageResource(R.drawable.pause_circle_blue_outline_ic);
-            initSeekBarAudioDuration(player);
-        }
-        initBookmarkIcon(null);
-        initViewPager();
-    }
-
-    private void initSeekBarAudioDuration(ExoPlayer player) {
-        binding.fragmentAudioDetailsLayout.audioDuration.setText(AudioHelper.milliSecondsToTimer((int) player.getDuration()));
-        binding.fragmentAudioDetailsLayout.seekBar.setMax((int) player.getDuration());
-        binding.fragmentAudioDetailsLayout.seekBar.setProgress((int) player.getCurrentPosition());
-        binding.fragmentAudioDetailsLayout.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
-        updatePlayerPositionProgress(player);
-    }
-
-    private void updatePlayerPositionProgress(ExoPlayer player) {
-        new Handler().postDelayed(() -> {
-            if (player.isPlaying() && binding != null) {
-                binding.fragmentAudioDetailsLayout.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
-                binding.fragmentAudioDetailsLayout.seekBar.setProgress((int) player.getCurrentPosition());
-            }
-            updatePlayerPositionProgress(player);
-        }, 1000);
-    }
-
-    private void seekBarChangedListener(ExoPlayer player) {
-        binding.fragmentAudioDetailsLayout.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            int progressValue = 0;
-
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                progressValue = seekBar.getProgress();
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                seekBar.setProgress(progressValue);
-                binding.fragmentAudioDetailsLayout.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer(progressValue));
-                player.seekTo(progressValue);
-            }
-        });
-    }
-
-    private void initBookmarkIcon(String audioId) {
-        String getCurrentAudioId;
-        if (audioId == null) {
-            getCurrentAudioId =
-                    Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID);
-        } else {
-            getCurrentAudioId = audioId;
-        }
-        audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
-            for (String id : bookmarkAudioIds) {
-                if (getCurrentAudioId.equals(id)) {
-                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setContentDescription(getString(R.string.bookmark_icon));
-                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
-                    break;
-                } else {
-                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setContentDescription(getString(R.string.bookmark_border_icon));
-                    binding.fragmentAudioDetailsLayout.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
-                }
-            }
-        });
-    }
-
-    private void initViewPager() {
-        List<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(new LyricsFragment());
-        fragmentList.add(new TranslationsFragment());
-
-        FragmentAdapter fragmentAdapter = new FragmentAdapter(requireActivity(), fragmentList);
-        binding.fragmentAudioDetailsLayout.pager.setAdapter(fragmentAdapter);
-
-        String[] tabLayoutNames = {AppConstant.LYRICS, AppConstant.TRANSLATIONS};
-        new TabLayoutMediator(binding.fragmentAudioDetailsLayout.tabLayout, binding.fragmentAudioDetailsLayout.pager,
-                (tab, position) -> tab.setText(tabLayoutNames[position])
-        ).attach();
     }
 
     private boolean onMenuItemClick(MenuItem menu) {
@@ -571,9 +480,6 @@ public class AudioListFragment extends Fragment {
                         Log.e("DNV", bookmarkAudio.getName());
                     }
                 });
-                return true;
-            case R.id.goToTopItem:
-                binding.audiosRcv.smoothScrollToPosition(0);
                 return true;
         }
         return false;
@@ -613,7 +519,7 @@ public class AudioListFragment extends Fragment {
         } else {
             visibility = View.GONE;
         }
-        binding.noDataTxt.setVisibility(visibility);
+        binding.messageTxt.setVisibility(visibility);
         audioAdapter.searchList(audioSearchList);
     }
 
