@@ -185,8 +185,4 @@
             app:tint="@color/primaryColor" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <include
-        android:id="@+id/fragmentAudioDetailsLayout"
-        layout="@layout/fragment_audio_details" />
 </androidx.constraintlayout.widget.ConstraintLayout>
