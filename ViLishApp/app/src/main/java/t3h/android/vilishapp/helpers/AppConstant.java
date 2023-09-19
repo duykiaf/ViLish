@@ -40,5 +40,7 @@ public class AppConstant {
     public static final String CHECK_CIRCLE_ICON = "Check circle icon";
     public static final String DOWNLOAD_MESS = "Downloading...";
     public static final int MAX_DOWNLOAD_FILES = 10;
+    public static final String PLAY_ANOTHER_AUDIO = "playAnotherAudio";
+    public static final String CURRENT_MEDIA_ITEM_INDEX = "currentMediaItemIndex";
     public static int REQUEST_CODE = 6798;
 }
