@@ -1,16 +1,26 @@
 package t3h.android.vilishapp.viewmodels;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Player;
 
-public class AudioViewModel extends ViewModel {
+public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<String> audioLyrics = new MutableLiveData<>();
     private MutableLiveData<String> audioTranslations = new MutableLiveData<>();
-    private MutableLiveData<ExoPlayer> exoPlayerMutableLiveData = new MutableLiveData<>();
-    private MutableLiveData<Boolean> bottomControlsVisible = new MutableLiveData<>(false);
+    private ExoPlayer player;
+    private MutableLiveData<String> topicIdLiveData = new MutableLiveData<>();
+
+    public AudioViewModel(@NonNull Application application) {
+        super(application);
+        player = new ExoPlayer.Builder(application.getApplicationContext()).build();
+        player.setRepeatMode(Player.REPEAT_MODE_ALL);
+    }
 
     public void setAudioLyrics(String lyrics) {
         audioLyrics.setValue(lyrics);
@@ -28,19 +38,21 @@ public class AudioViewModel extends ViewModel {
         return audioTranslations;
     }
 
-    public void setExoPlayerMutableLiveData(ExoPlayer player) {
-        exoPlayerMutableLiveData.setValue(player);
+    public ExoPlayer getExoplayer() {
+        return player;
     }
 
-    public LiveData<ExoPlayer> getExoplayer() {
-        return exoPlayerMutableLiveData;
+    public void stopExoplayer() {
+        if (player.isPlaying()) {
+            player.stop();
+        }
     }
 
-    public void setBottomControlsVisible(Boolean isVisible) {
-        bottomControlsVisible.setValue(isVisible);
+    public void setTopicIdLiveData(String topicId) {
+        topicIdLiveData.setValue(topicId);
     }
 
-    public LiveData<Boolean> getBottomControlsVisibleValue() {
-        return bottomControlsVisible;
+    public String getTopicIdLiveData() {
+        return topicIdLiveData.getValue();
     }
 }

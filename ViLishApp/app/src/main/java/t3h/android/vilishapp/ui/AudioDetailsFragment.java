@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -34,6 +35,7 @@ public class AudioDetailsFragment extends Fragment {
     private AudioViewModel audioViewModel;
     private AudioRepository audioRepository;
     private ExoPlayer player;
+    private boolean isTheFirstOpenTime = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,10 +48,10 @@ public class AudioDetailsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
-        audioViewModel.setBottomControlsVisible(true);
         audioRepository = new AudioRepository(requireActivity().getApplication());
         initViewPager();
-        gettingPlayer();
+        player = audioViewModel.getExoplayer();
+        initAudioControlLayout();
     }
 
     private void initViewPager() {
@@ -66,31 +68,74 @@ public class AudioDetailsFragment extends Fragment {
         ).attach();
     }
 
-    private void gettingPlayer() {
-        audioViewModel.getExoplayer().observe(requireActivity(), playerLiveData -> {
-            if (playerLiveData != null) {
-                player = playerLiveData;
-                playerControls(player);
+    private void initAudioControlLayout() {
+        if (!player.isPlaying()) {
+            if (isTheFirstOpenTime) {
+                isTheFirstOpenTime = false;
+                setUpCurrentMediaItem();
             }
-        });
+            player.play();
+        } else {
+            if (isTheFirstOpenTime) {
+                isTheFirstOpenTime = false;
+                if (requireArguments().get(AppConstant.PLAY_ANOTHER_AUDIO) != null && requireArguments().getBoolean(AppConstant.PLAY_ANOTHER_AUDIO)) {
+                    setUpCurrentMediaItem();
+                    player.play();
+                }
+                binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+            }
+        }
+        binding.playOrPauseIcon.setImageResource(R.drawable.pause_circle_blue_outline_ic);
+        initSeekBarAudioDuration();
+        seekBarChangedListener();
+        playerListener();
     }
 
-    private void playerControls(ExoPlayer player) {
+    private void setUpCurrentMediaItem() {
+        player.seekTo((Integer) requireArguments().get(AppConstant.CURRENT_MEDIA_ITEM_INDEX), C.TIME_UNSET);
+        player.prepare();
+    }
+
+    private void initSeekBarAudioDuration() {
+        binding.audioDuration.setText(AudioHelper.milliSecondsToTimer((int) player.getDuration()));
+        binding.seekBar.setMax((int) player.getDuration());
+        binding.seekBar.setProgress((int) player.getCurrentPosition());
+        binding.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
+        updatePlayerPositionProgress();
+    }
+
+    private void updatePlayerPositionProgress() {
+        new Handler().postDelayed(() -> {
+            if (player.isPlaying() && binding != null) {
+                binding.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
+                binding.seekBar.setProgress((int) player.getCurrentPosition());
+            }
+            updatePlayerPositionProgress();
+        }, 1000);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        binding.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+        playerControls();
+    }
+
+    private void playerControls() {
         binding.previousIcon.setOnClickListener(v -> {
             if (player.hasPreviousMediaItem()) {
                 player.seekToPrevious();
-                updatePlayerPositionProgress(player);
+                updatePlayerPositionProgress();
             }
         });
 
         binding.nextIcon.setOnClickListener(v -> {
             if (player.hasNextMediaItem()) {
                 player.seekToNext();
-                updatePlayerPositionProgress(player);
+                updatePlayerPositionProgress();
             }
         });
 
-        // play/pause
         binding.playOrPauseIcon.setOnClickListener(v -> {
             if (player.isPlaying()) {
                 player.pause();
@@ -101,20 +146,9 @@ public class AudioDetailsFragment extends Fragment {
             }
         });
 
-        // set seek bar changed listener
-        seekBarChangedListener(player);
+        seekBarChangedListener();
 
-        playerListener(player);
-    }
-
-    private void updatePlayerPositionProgress(ExoPlayer player) {
-        new Handler().postDelayed(() -> {
-            if (player.isPlaying() && binding != null) {
-                binding.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
-                binding.seekBar.setProgress((int) player.getCurrentPosition());
-            }
-            updatePlayerPositionProgress(player);
-        }, 1000);
+        playerListener();
     }
 
     private void initPlayOrPauseIcon(boolean isPlaying) {
@@ -127,7 +161,7 @@ public class AudioDetailsFragment extends Fragment {
         binding.playOrPauseIcon.setImageResource(playOrPauseIconId);
     }
 
-    private void seekBarChangedListener(ExoPlayer player) {
+    private void seekBarChangedListener() {
         binding.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             int progressValue = 0;
 
@@ -149,17 +183,19 @@ public class AudioDetailsFragment extends Fragment {
         });
     }
 
-    private void playerListener(ExoPlayer player) {
+    private void playerListener() {
         player.addListener(new Player.Listener() {
             @Override
             public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
                 assert mediaItem != null;
                 binding.audioTitle.setText(mediaItem.mediaMetadata.title);
                 initPlayOrPauseIcon(true);
-                initSeekBarAudioDuration(player);
+                initSeekBarAudioDuration();
+                seekBarChangedListener();
+                playerListener();
                 assert mediaItem.mediaMetadata.extras != null;
                 if (isAdded()) {
-                    initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID), player);
+                    initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
                 }
             }
 
@@ -168,26 +204,20 @@ public class AudioDetailsFragment extends Fragment {
                 if (playbackState == ExoPlayer.STATE_READY && player.isPlaying()) {
                     binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
                     initPlayOrPauseIcon(true);
-                    initSeekBarAudioDuration(player);
+                    initSeekBarAudioDuration();
+                    seekBarChangedListener();
+                    playerListener();
                 } else {
                     initPlayOrPauseIcon(false);
                 }
                 if (isAdded()) {
-                    initBookmarkIcon(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID), player);
+                    initBookmarkIcon(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
                 }
             }
         });
     }
 
-    private void initSeekBarAudioDuration(ExoPlayer player) {
-        binding.audioDuration.setText(AudioHelper.milliSecondsToTimer((int) player.getDuration()));
-        binding.seekBar.setMax((int) player.getDuration());
-        binding.seekBar.setProgress((int) player.getCurrentPosition());
-        binding.audioCurrentTime.setText(AudioHelper.milliSecondsToTimer((int) player.getCurrentPosition()));
-        updatePlayerPositionProgress(player);
-    }
-
-    private void initBookmarkIcon(String audioId, ExoPlayer player) {
+    private void initBookmarkIcon(String audioId) {
         String getCurrentAudioId;
         if (audioId == null) {
             getCurrentAudioId =
@@ -207,12 +237,6 @@ public class AudioDetailsFragment extends Fragment {
                 }
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        binding.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
     }
 
     @Override

@@ -52,7 +52,7 @@ public class AudioListFragment extends Fragment {
     private FragmentAudioListBinding binding;
     private NavController navController;
     private FirebaseDatabase firebaseDatabase;
-    private String topicId;
+    private String topicId, oldTopicId;
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
     private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter;
@@ -60,10 +60,10 @@ public class AudioListFragment extends Fragment {
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
     private AudioViewModel audioViewModel;
-    private boolean isTheFirstTimeInitAudioControlsLayout = true;
     private Disposable disposable;
     private AudioRepository audioRepository;
     private HashMap<String, String> audioUrlSelected = new HashMap<>();
+    private Bundle playingAudioBundle = new Bundle();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,15 +79,13 @@ public class AudioListFragment extends Fragment {
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
         audioRepository = new AudioRepository(requireActivity().getApplication());
         audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
-
-        // assign exoplayer
-        player = new ExoPlayer.Builder(requireContext()).build();
-        player.setRepeatMode(Player.REPEAT_MODE_ALL);
-
-        audioViewModel.setExoPlayerMutableLiveData(player);
-
+        player = audioViewModel.getExoplayer();
         initTopAppBar();
+        // get old topic id
+        oldTopicId = audioViewModel.getTopicIdLiveData();
         topicId = requireArguments().getString(AppConstant.TOPIC_ID);
+        // set current topic id
+        audioViewModel.setTopicIdLiveData(topicId);
         if (topicId != null) {
             audioAdapter = new AudioAdapter(getContext());
             binding.audiosRcv.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -269,24 +267,27 @@ public class AudioListFragment extends Fragment {
             @Override
             public void onItemClick(Audio item, int position) {
                 currentMediaItemIndex = player.getCurrentMediaItemIndex();
-
-                // play/pause logic
-                if (player.isPlaying()) { // is playing
+                if (player.isPlaying()) {
                     if (currentMediaItemIndex != position) {
+                        playingAudioBundle.putBoolean(AppConstant.PLAY_ANOTHER_AUDIO, true);
                         player.pause();
                         player.seekTo(position, 0);
                     }
                     prepareAndPlayAudio(player);
-                } else { // pause or stop
-                    if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimeInitAudioControlsLayout)) {
+                } else {
+                    // if topic id change, reset media items
+                    if (oldTopicId != null && !Objects.equals(oldTopicId, topicId)) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), 0, 0);
+                    }
+
+                    if (currentMediaItemIndex != position || currentMediaItemIndex == 0) {
                         player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
+                    } else {
                         prepareAndPlayAudio(player);
                     }
-                    isTheFirstTimeInitAudioControlsLayout = false;
                 }
-
-                // open AudioDetailsFragment
-                navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment);
+                playingAudioBundle.putInt(AppConstant.CURRENT_MEDIA_ITEM_INDEX, position);
+                navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment, playingAudioBundle);
             }
 
             @Override
@@ -303,7 +304,7 @@ public class AudioListFragment extends Fragment {
                                 updateItemCounterSelected();
                                 audioUrlSelected.put(item.getId(), item.getName());
                             } else {
-                                Toast.makeText(requireContext(), "Bạn chỉ được phép tải 10 file mỗi lần!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), "Bạn chỉ được phép tải xuống 10 file mỗi lần!", Toast.LENGTH_SHORT).show();
                             }
                         } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
                             audioUrlSelected.remove(item.getId());
@@ -454,7 +455,6 @@ public class AudioListFragment extends Fragment {
         };
     }
 
-    // prepare and play
     private void prepareAndPlayAudio(ExoPlayer player) {
         player.prepare();
         player.play();
@@ -524,23 +524,11 @@ public class AudioListFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
-        // release the player
-        if (player.isPlaying()) {
-            player.stop();
-        }
-        player.release();
-
+        audioViewModel.stopExoplayer();
         if (disposable != null) {
             disposable.dispose();
         }
-
-        binding = null;
     }
 }
