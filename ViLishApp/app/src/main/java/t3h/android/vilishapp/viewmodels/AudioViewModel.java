@@ -11,15 +11,26 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 
 public class AudioViewModel extends AndroidViewModel {
+    private MutableLiveData<String> audioTitle = new MutableLiveData<>();
     private MutableLiveData<String> audioLyrics = new MutableLiveData<>();
     private MutableLiveData<String> audioTranslations = new MutableLiveData<>();
     private ExoPlayer player;
     private MutableLiveData<String> topicIdLiveData = new MutableLiveData<>();
+    private MutableLiveData<Boolean> exoplayerStop = new MutableLiveData<>(true);
+    private MutableLiveData<Boolean> onBottomControlClick = new MutableLiveData<>(false);
 
     public AudioViewModel(@NonNull Application application) {
         super(application);
         player = new ExoPlayer.Builder(application.getApplicationContext()).build();
         player.setRepeatMode(Player.REPEAT_MODE_ALL);
+    }
+
+    public void setAudioTitle(String audioTitle) {
+        this.audioTitle.setValue(audioTitle);
+    }
+
+    public LiveData<String> getAudioTitle() {
+        return audioTitle;
     }
 
     public void setAudioLyrics(String lyrics) {
@@ -54,5 +65,21 @@ public class AudioViewModel extends AndroidViewModel {
 
     public String getTopicIdLiveData() {
         return topicIdLiveData.getValue();
+    }
+
+    public void setStopState(Boolean isStopped) {
+        exoplayerStop.setValue(isStopped);
+    }
+
+    public LiveData<Boolean> getExoplayerState() {
+        return exoplayerStop;
+    }
+
+    public void setBottomControlClick(Boolean clicked) {
+        onBottomControlClick.setValue(clicked);
+    }
+
+    public Boolean getBottomControlClickListener() {
+        return onBottomControlClick.getValue();
     }
 }

@@ -95,6 +95,7 @@ public class AudioListFragment extends Fragment {
         } else {
             Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_LONG).show();
         }
+        initAudioControlBottom();
     }
 
     private void initTopAppBar() {
@@ -168,6 +169,20 @@ public class AudioListFragment extends Fragment {
         Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
     }
 
+    private void initAudioControlBottom() {
+        audioViewModel.getExoplayerState().observe(requireActivity(), isStopped -> {
+            if (isStopped) {
+                binding.audioControlLayout.setVisibility(View.GONE);
+            } else {
+                binding.audioControlLayout.setVisibility(View.VISIBLE);
+                if (isAdded()) {
+                    audioViewModel.getAudioTitle().observe(requireActivity(), audioTitle -> binding.currentAudioTitle.setText(audioTitle));
+                }
+                initPlayOrPauseIcon();
+            }
+        });
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -186,7 +201,12 @@ public class AudioListFragment extends Fragment {
     }
 
     private void playerControlsAtAudioListScreen(ExoPlayer player) {
-        binding.audioControlLayout.setOnClickListener(v -> navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment));
+        binding.audioControlLayout.setOnClickListener(v -> {
+            audioViewModel.setBottomControlClick(true);
+            playingAudioBundle.putBoolean(AppConstant.PLAY_ANOTHER_AUDIO, false);
+            playingAudioBundle.putInt(AppConstant.CURRENT_MEDIA_ITEM_INDEX, player.getCurrentMediaItemIndex());
+            navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment, playingAudioBundle);
+        });
 
         binding.previousIcon.setOnClickListener(v -> {
             if (player.hasPreviousMediaItem()) {
@@ -203,13 +223,12 @@ public class AudioListFragment extends Fragment {
         binding.playOrPauseIcon.setOnClickListener(v -> {
             if (player.isPlaying()) {
                 player.pause();
-                initPlayOrPauseIcon(false);
             } else {
                 if (player.getMediaItemCount() > 0) {
                     player.play();
-                    initPlayOrPauseIcon(true);
                 }
             }
+            initPlayOrPauseIcon();
         });
     }
 
@@ -225,8 +244,7 @@ public class AudioListFragment extends Fragment {
                 audioViewModel.setAudioLyrics((String) mediaItem.mediaMetadata.description);
                 audioViewModel.setAudioTranslations((String) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
 
-                // show pause icon
-                initPlayOrPauseIcon(true);
+                initPlayOrPauseIcon();
 
                 if (!player.isPlaying()) {
                     player.play();
@@ -242,19 +260,14 @@ public class AudioListFragment extends Fragment {
                     // show audio lyrics and translations
                     audioViewModel.setAudioLyrics((String) player.getCurrentMediaItem().mediaMetadata.description);
                     audioViewModel.setAudioTranslations((String) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
-
-                    // show pause audio icon
-                    initPlayOrPauseIcon(true);
-                } else {
-                    // show play audio icon
-                    initPlayOrPauseIcon(false);
                 }
+                initPlayOrPauseIcon();
             }
         });
     }
 
-    private void initPlayOrPauseIcon(boolean isPlaying) {
-        if (isPlaying) {
+    private void initPlayOrPauseIcon() {
+        if (player.isPlaying()) {
             playOrPauseIconId = R.drawable.pause_circle_blue_outline_ic;
         } else {
             playOrPauseIconId = R.drawable.play_circle_blue_outline_ic;
@@ -266,6 +279,7 @@ public class AudioListFragment extends Fragment {
         audioAdapter.setOnAudioItemClickListener(new AudioAdapter.OnAudioItemClickListener() {
             @Override
             public void onItemClick(Audio item, int position) {
+                audioViewModel.setStopState(false);
                 currentMediaItemIndex = player.getCurrentMediaItemIndex();
                 if (player.isPlaying()) {
                     if (currentMediaItemIndex != position) {
@@ -527,6 +541,7 @@ public class AudioListFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         audioViewModel.stopExoplayer();
+        audioViewModel.setStopState(true);
         if (disposable != null) {
             disposable.dispose();
         }

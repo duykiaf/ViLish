@@ -72,13 +72,19 @@ public class AudioDetailsFragment extends Fragment {
         if (!player.isPlaying()) {
             if (isTheFirstOpenTime) {
                 isTheFirstOpenTime = false;
-                setUpCurrentMediaItem();
+                if (!audioViewModel.getBottomControlClickListener()) {
+                    setUpCurrentMediaItem();
+                } else {
+                    binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+                }
+                audioViewModel.setBottomControlClick(false);
             }
             player.play();
         } else {
             if (isTheFirstOpenTime) {
                 isTheFirstOpenTime = false;
-                if (requireArguments().get(AppConstant.PLAY_ANOTHER_AUDIO) != null && requireArguments().getBoolean(AppConstant.PLAY_ANOTHER_AUDIO)) {
+                if (requireArguments().get(AppConstant.PLAY_ANOTHER_AUDIO) != null &&
+                        requireArguments().getBoolean(AppConstant.PLAY_ANOTHER_AUDIO)) {
                     setUpCurrentMediaItem();
                     player.play();
                 }
@@ -139,11 +145,10 @@ public class AudioDetailsFragment extends Fragment {
         binding.playOrPauseIcon.setOnClickListener(v -> {
             if (player.isPlaying()) {
                 player.pause();
-                initPlayOrPauseIcon(false);
             } else {
                 player.play();
-                initPlayOrPauseIcon(true);
             }
+            initPlayOrPauseIcon();
         });
 
         seekBarChangedListener();
@@ -151,9 +156,9 @@ public class AudioDetailsFragment extends Fragment {
         playerListener();
     }
 
-    private void initPlayOrPauseIcon(boolean isPlaying) {
+    private void initPlayOrPauseIcon() {
         int playOrPauseIconId;
-        if (isPlaying) {
+        if (player.isPlaying()) {
             playOrPauseIconId = R.drawable.pause_circle_blue_outline_ic;
         } else {
             playOrPauseIconId = R.drawable.play_circle_blue_outline_ic;
@@ -189,10 +194,9 @@ public class AudioDetailsFragment extends Fragment {
             public void onMediaItemTransition(@Nullable MediaItem mediaItem, int reason) {
                 assert mediaItem != null;
                 binding.audioTitle.setText(mediaItem.mediaMetadata.title);
-                initPlayOrPauseIcon(true);
+                initPlayOrPauseIcon();
                 initSeekBarAudioDuration();
                 seekBarChangedListener();
-                playerListener();
                 assert mediaItem.mediaMetadata.extras != null;
                 if (isAdded()) {
                     initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
@@ -203,13 +207,10 @@ public class AudioDetailsFragment extends Fragment {
             public void onPlaybackStateChanged(int playbackState) {
                 if (playbackState == ExoPlayer.STATE_READY && player.isPlaying()) {
                     binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
-                    initPlayOrPauseIcon(true);
                     initSeekBarAudioDuration();
                     seekBarChangedListener();
-                    playerListener();
-                } else {
-                    initPlayOrPauseIcon(false);
                 }
+                initPlayOrPauseIcon();
                 if (isAdded()) {
                     initBookmarkIcon(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
                 }
@@ -242,6 +243,7 @@ public class AudioDetailsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        audioViewModel.setAudioTitle(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title.toString());
     }
 
     @Override
