@@ -56,7 +56,7 @@ public class AudioListFragment extends Fragment {
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
     private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter;
-    private String contentDesc;
+    private String contentDesc, getAudioTranslations;
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
     private AudioViewModel audioViewModel;
@@ -242,7 +242,8 @@ public class AudioListFragment extends Fragment {
 
                 // show audio lyrics and translations
                 audioViewModel.setAudioLyrics((String) mediaItem.mediaMetadata.description);
-                audioViewModel.setAudioTranslations((String) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
+                getAudioTranslations = ((Audio) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)).getTranslations();
+                audioViewModel.setAudioTranslations(getAudioTranslations);
 
                 initPlayOrPauseIcon();
 
@@ -259,7 +260,8 @@ public class AudioListFragment extends Fragment {
 
                     // show audio lyrics and translations
                     audioViewModel.setAudioLyrics((String) player.getCurrentMediaItem().mediaMetadata.description);
-                    audioViewModel.setAudioTranslations((String) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_TRANSLATIONS));
+                    getAudioTranslations = ((Audio) player.getCurrentMediaItem().mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)).getTranslations();
+                    audioViewModel.setAudioTranslations(getAudioTranslations);
                 }
                 initPlayOrPauseIcon();
             }
