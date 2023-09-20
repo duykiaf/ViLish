@@ -229,11 +229,11 @@ public class AudioDetailsFragment extends Fragment {
         audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
             for (String id : bookmarkAudioIds) {
                 if (getCurrentAudioId.equals(id)) {
-                    binding.bookmarkIcon.setContentDescription(getString(R.string.bookmark_icon));
+                    binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_ICON);
                     binding.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
                     break;
                 } else {
-                    binding.bookmarkIcon.setContentDescription(getString(R.string.bookmark_border_icon));
+                    binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_BORDER_ICON);
                     binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
                 }
             }
