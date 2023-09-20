@@ -25,8 +25,7 @@ public class ExoplayerHelper {
 
     private static MediaMetadata getMediaMetadata(Audio audio) {
         Bundle bundle = new Bundle();
-        bundle.putString(AppConstant.AUDIO_ID, audio.getId());
-        bundle.putString(AppConstant.AUDIO_TRANSLATIONS, audio.getTranslations());
+        bundle.putSerializable(AppConstant.AUDIO_ITEM, audio);
         return new MediaMetadata.Builder()
                 .setExtras(bundle)
                 .setTitle(audio.getName())
