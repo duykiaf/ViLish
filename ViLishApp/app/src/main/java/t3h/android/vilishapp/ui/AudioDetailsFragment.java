@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,11 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableObserver;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.adapters.FragmentAdapter;
 import t3h.android.vilishapp.databinding.FragmentAudioDetailsBinding;
 import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.AudioHelper;
+import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
 import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
@@ -36,6 +43,9 @@ public class AudioDetailsFragment extends Fragment {
     private AudioRepository audioRepository;
     private ExoPlayer player;
     private boolean isTheFirstOpenTime = true;
+    private String bookmarkImgViewContentDesc;
+    private Disposable disposable;
+    private String getCurrentAudioId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +62,7 @@ public class AudioDetailsFragment extends Fragment {
         initViewPager();
         player = audioViewModel.getExoplayer();
         initAudioControlLayout();
+        initBookmarkIcon(null);
     }
 
     private void initViewPager() {
@@ -125,6 +136,7 @@ public class AudioDetailsFragment extends Fragment {
         super.onResume();
         binding.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
         playerControls();
+        addOrRemoveBookmark();
     }
 
     private void playerControls() {
@@ -199,7 +211,8 @@ public class AudioDetailsFragment extends Fragment {
                 seekBarChangedListener();
                 assert mediaItem.mediaMetadata.extras != null;
                 if (isAdded()) {
-                    initBookmarkIcon(mediaItem.mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
+                    getCurrentAudioId = ((Audio) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)).getId();
+                    initBookmarkIcon(getCurrentAudioId);
                 }
             }
 
@@ -212,32 +225,158 @@ public class AudioDetailsFragment extends Fragment {
                 }
                 initPlayOrPauseIcon();
                 if (isAdded()) {
-                    initBookmarkIcon(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID));
+                    getCurrentAudioId = ((Audio) Objects.requireNonNull(player.getCurrentMediaItem())
+                            .mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)
+                    ).getId();
+                    initBookmarkIcon(getCurrentAudioId);
                 }
             }
         });
     }
 
     private void initBookmarkIcon(String audioId) {
-        String getCurrentAudioId;
         if (audioId == null) {
-            getCurrentAudioId =
-                    Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.getString(AppConstant.AUDIO_ID);
+            getCurrentAudioId = ((Audio) Objects.requireNonNull(player.getCurrentMediaItem())
+                    .mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)
+            ).getId();
         } else {
             getCurrentAudioId = audioId;
         }
         audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
             for (String id : bookmarkAudioIds) {
                 if (getCurrentAudioId.equals(id)) {
-                    binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_ICON);
-                    binding.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
+                    setBookmarkIconType(true);
                     break;
                 } else {
-                    binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_BORDER_ICON);
-                    binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
+                    setBookmarkIconType(false);
                 }
             }
         });
+    }
+
+    private void addOrRemoveBookmark() {
+        binding.bookmarkIcon.setOnClickListener(v -> {
+            Audio audioItem = (Audio) Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.get(AppConstant.AUDIO_ITEM);
+            bookmarkImgViewContentDesc = binding.bookmarkIcon.getContentDescription().toString();
+            if (bookmarkImgViewContentDesc.equalsIgnoreCase(AppConstant.BOOKMARK_ICON)) { // audio is bookmarked
+                setBookmarkIconType(false);
+                handleRemoveBookmark(audioItem);
+            } else { // audio isn't bookmarked
+                setBookmarkIconType(true);
+                handleAddBookmark(audioItem);
+            }
+        });
+    }
+
+    private void setBookmarkIconType(boolean isBookmark) {
+        if (isBookmark) {
+            binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_ICON);
+            binding.bookmarkIcon.setImageResource(R.drawable.blue_bookmark_ic);
+        } else {
+            binding.bookmarkIcon.setContentDescription(AppConstant.BOOKMARK_BORDER_ICON);
+            binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
+        }
+    }
+
+    private void handleRemoveBookmark(Audio item) {
+        if (item == null) {
+            Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            Completable deleteBookmarkObservable = deleteBookmark(item);
+            CompletableObserver deleteBookmarkObserver = deleteBookmarkObserver();
+            if (deleteBookmarkObservable != null) {
+                deleteBookmarkObservable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(deleteBookmarkObserver);
+            } else {
+                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void handleAddBookmark(Audio item) {
+        if (item == null) {
+            Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            Completable addBookmarkObservable = addBookmark(item);
+            CompletableObserver completableObserver = completableObserver();
+            if (addBookmarkObservable != null) {
+                addBookmarkObservable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(completableObserver);
+            } else {
+                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private Completable addBookmark(Audio item) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                // logic add bookmark here
+                audioRepository.addBookmark(item);
+                emitter.onComplete();
+            }
+        });
+    }
+
+    private CompletableObserver completableObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private Completable deleteBookmark(Audio item) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                // logic add bookmark here
+                int deleteRow = audioRepository.deleteBookmark(item);
+                if (deleteRow > 0) {
+                    // complete callback
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(new Exception());
+                }
+            }
+        });
+    }
+
+    private CompletableObserver deleteBookmarkObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 
     @Override
@@ -249,5 +388,8 @@ public class AudioDetailsFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (disposable != null) {
+            disposable.dispose();
+        }
     }
 }
