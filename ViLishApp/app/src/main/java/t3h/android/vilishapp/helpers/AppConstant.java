@@ -43,4 +43,6 @@ public class AppConstant {
     public static final String PLAY_ANOTHER_AUDIO = "playAnotherAudio";
     public static final String CURRENT_MEDIA_ITEM_INDEX = "currentMediaItemIndex";
     public static int REQUEST_CODE = 6798;
+    public static final String BOOKMARK_ICON = "Bookmark icon";
+    public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
 }
