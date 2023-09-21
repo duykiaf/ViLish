@@ -64,6 +64,7 @@ public class AudioListFragment extends Fragment {
     private AudioRepository audioRepository;
     private HashMap<String, String> audioUrlSelected = new HashMap<>();
     private Bundle playingAudioBundle = new Bundle();
+    private boolean isTheFirstTimePlayAudio = true;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -296,7 +297,8 @@ public class AudioListFragment extends Fragment {
                         player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), 0, 0);
                     }
 
-                    if (currentMediaItemIndex != position || currentMediaItemIndex == 0) {
+                    if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimePlayAudio)) {
+                        isTheFirstTimePlayAudio = false;
                         player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
                     } else {
                         prepareAndPlayAudio(player);
