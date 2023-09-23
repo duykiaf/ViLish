@@ -26,7 +26,6 @@
     <string name="_1_5x">1.5x</string>
     <string name="close">Close</string>
     <string name="go_to_top">Go to top</string>
-    <string name="selected_item">/10 item selected</string>
     <string name="downloaded_audios">Downloaded audios</string>
     <string name="pause_icon">Pause icon</string>
 </resources>
