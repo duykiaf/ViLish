@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import t3h.android.vilishapp.R;
@@ -25,6 +26,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     private OnAudioItemClickListener onAudioItemClickListener;
     private DiffUtil.DiffResult diffResult;
     private List<String> bookmarkAudioIds;
+    private HashMap<String, Integer> audioCheckedList;
 
     public AudioAdapter(Context context) {
         this.context = context;
@@ -38,6 +40,10 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
     public void setBookmarkAudioIds(List<String> bookmarkAudioIds) {
         this.bookmarkAudioIds = bookmarkAudioIds;
+    }
+
+    public void setAudioCheckedList(HashMap<String, Integer> audioCheckedList) {
+        this.audioCheckedList = audioCheckedList;
     }
 
     @NonNull
@@ -87,16 +93,21 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
         }
 
         public void bindView(Audio audioInfo) {
+            // default icon
+            binding.downloadIcon.setContentDescription(AppConstant.DOWNLOAD_ICON);
+            binding.downloadIcon.setImageResource(R.drawable.blue_download_ic);
+
             binding.audioTitle.setText(audioInfo.getName());
             // init audio duration
             initAudioDuration(audioInfo);
-            // init play/pause icon
 
             // init bookmark icon
             initBookmarkIcon(audioInfo);
 
             // init download/trash icon
 
+            // init checked or download icon
+            initCheckedOrDownloadIcon(audioInfo);
         }
 
         private void initAudioDuration(Audio audioInfo) {
@@ -123,6 +134,21 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                     } else {
                         binding.bookmarkIcon.setContentDescription(context.getString(R.string.bookmark_border_icon));
                         binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
+                    }
+                }
+            }
+        }
+
+        private void initCheckedOrDownloadIcon(Audio audioInfo) {
+            if (audioCheckedList != null) {
+                for (String audioId: audioCheckedList.keySet()) {
+                    if (audioInfo.getId().equals(audioId)) {
+                        binding.downloadIcon.setContentDescription(AppConstant.CHECK_CIRCLE_ICON);
+                        binding.downloadIcon.setImageResource(R.drawable.check_circle_ic);
+                        break;
+                    } else {
+                        binding.downloadIcon.setContentDescription(AppConstant.DOWNLOAD_ICON);
+                        binding.downloadIcon.setImageResource(R.drawable.blue_download_ic);
                     }
                 }
             }

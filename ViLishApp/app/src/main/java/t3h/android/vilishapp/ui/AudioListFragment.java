@@ -63,8 +63,10 @@ public class AudioListFragment extends Fragment {
     private Disposable disposable;
     private AudioRepository audioRepository;
     private HashMap<String, String> audioUrlSelected = new HashMap<>();
+    private HashMap<String, Integer> audioPositionSelected = new HashMap<>();
     private Bundle playingAudioBundle = new Bundle();
     private boolean isTheFirstTimePlayAudio = true;
+    private StringBuffer itemSelectedCounterTxt;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,6 +84,7 @@ public class AudioListFragment extends Fragment {
         audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
         player = audioViewModel.getExoplayer();
         initTopAppBar();
+
         // get old topic id
         oldTopicId = audioViewModel.getTopicIdLiveData();
         topicId = requireArguments().getString(AppConstant.TOPIC_ID);
@@ -96,6 +99,20 @@ public class AudioListFragment extends Fragment {
         } else {
             Toast.makeText(requireActivity(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_LONG).show();
         }
+
+        // init itemCounter
+        audioViewModel.getItemDownloadSelectedCounter().observe(requireActivity(), countValue -> itemCounter = countValue);
+
+        initItemSelectedCounterLayout();
+
+        // get audio url selected list
+        audioViewModel.getAudioUrlSelected().observe(requireActivity(), audioUrlSelectedLiveData ->
+                audioUrlSelected = audioUrlSelectedLiveData
+        );
+
+        // get audio position selected list
+        audioViewModel.getAudioCheckedPosList().observe(requireActivity(), posList -> audioPositionSelected = posList);
+
         initAudioControlBottom();
     }
 
@@ -140,6 +157,7 @@ public class AudioListFragment extends Fragment {
                                 visibility = View.VISIBLE;
                             }
                             binding.messageTxt.setVisibility(visibility);
+                            audioAdapter.setAudioCheckedList(audioPositionSelected);
                             audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
                                 audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
                                 audioAdapter.updateItemList(audioListByTopicId);
@@ -316,22 +334,32 @@ public class AudioListFragment extends Fragment {
                         if (icon.getContentDescription().equals(AppConstant.DOWNLOAD_ICON)) {
                             if (itemCounter < AppConstant.MAX_DOWNLOAD_FILES) {
                                 itemCounter++;
+
                                 contentDesc = AppConstant.CHECK_CIRCLE_ICON;
                                 resId = R.drawable.check_circle_ic;
                                 initDownloadOrCheckCircleIc(icon);
-                                updateItemCounterSelected();
+
+                                audioViewModel.setItemDownloadSelectedCounter(itemCounter);
+
                                 audioUrlSelected.put(item.getId(), item.getName());
+                                audioPositionSelected.put(item.getId(), position);
                             } else {
-                                Toast.makeText(requireContext(), "Bạn chỉ được phép tải xuống 10 file mỗi lần!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), AppConstant.MAX_DOWNLOAD_FILES_MESSAGE, Toast.LENGTH_SHORT).show();
                             }
                         } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
                             audioUrlSelected.remove(item.getId());
+                            audioPositionSelected.remove(item.getId());
+
                             contentDesc = AppConstant.DOWNLOAD_ICON;
                             resId = R.drawable.white_download_ic;
                             initDownloadOrCheckCircleIc(icon);
+
                             itemCounter--;
-                            updateItemCounterSelected();
+                            audioViewModel.setItemDownloadSelectedCounter(itemCounter);
                         }
+                        audioViewModel.setAudioUrlSelected(audioUrlSelected);
+                        audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
+                        initItemSelectedCounterLayout();
                         break;
                     case R.id.bookmarkIcon:
                         if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
@@ -375,10 +403,17 @@ public class AudioListFragment extends Fragment {
         icon.setContentDescription(contentDesc);
     }
 
-    private void updateItemCounterSelected() {
-        StringBuffer sb = new StringBuffer();
-        sb.append(itemCounter).append(requireContext().getString(R.string.selected_item));
-        binding.itemCounterSelected.setText(sb.toString());
+    private void initItemSelectedCounterLayout() {
+        audioViewModel.getItemDownloadSelectedCounter().observe(requireActivity(), counter -> {
+            if (counter == 0) {
+                binding.selectedNotificationLayout.setVisibility(View.GONE);
+            } else {
+                binding.selectedNotificationLayout.setVisibility(View.VISIBLE);
+                itemSelectedCounterTxt = new StringBuffer();
+                itemSelectedCounterTxt.append(counter).append(AppConstant.ITEM_SELECTED_COUNTER_TXT);
+                binding.itemCounterSelected.setText(itemSelectedCounterTxt.toString());
+            }
+        });
     }
 
     private void onDownloadIcClickListener() {
@@ -387,14 +422,21 @@ public class AudioListFragment extends Fragment {
             binding.progressBar.setVisibility(View.VISIBLE);
             binding.messageTxt.setVisibility(View.VISIBLE);
             binding.messageTxt.setText(AppConstant.DOWNLOAD_MESS);
+
+            audioViewModel.getAudioUrlSelected().observe(requireActivity(), audioUrlSelectedLiveData -> {
+                Log.e("DNV-checkedList", audioUrlSelectedLiveData.toString());
+            });
         });
     }
 
     private void closeItemCounterNotification() {
         binding.closeNotification.setOnClickListener(v -> {
-            binding.selectedNotificationLayout.setVisibility(View.GONE);
+            audioViewModel.setAudioUrlSelected(new HashMap<>());
+            audioViewModel.setItemDownloadSelectedCounter(0);
+            initItemSelectedCounterLayout();
             itemCounter = 0;
-            initAudioListByTopicId();
+            audioPositionSelected.clear();
+            audioAdapter.notifyDataSetChanged();
         });
     }
 

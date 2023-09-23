@@ -10,6 +10,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 
+import java.util.HashMap;
+
 public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<String> audioTitle = new MutableLiveData<>();
     private MutableLiveData<String> audioLyrics = new MutableLiveData<>();
@@ -18,6 +20,9 @@ public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<String> topicIdLiveData = new MutableLiveData<>();
     private MutableLiveData<Boolean> exoplayerStop = new MutableLiveData<>(true);
     private MutableLiveData<Boolean> onBottomControlClick = new MutableLiveData<>(false);
+    private MutableLiveData<Integer> itemDownloadSelectedCounter = new MutableLiveData<>(0);
+    private MutableLiveData<HashMap<String, String>> audioUrlSelectedLiveData = new MutableLiveData<>();
+    private MutableLiveData<HashMap<String, Integer>> audioCheckedPosListLiveData = new MutableLiveData<>();
 
     public AudioViewModel(@NonNull Application application) {
         super(application);
@@ -81,5 +86,29 @@ public class AudioViewModel extends AndroidViewModel {
 
     public Boolean getBottomControlClickListener() {
         return onBottomControlClick.getValue();
+    }
+
+    public void setItemDownloadSelectedCounter(int counter) {
+        itemDownloadSelectedCounter.setValue(counter);
+    }
+
+    public LiveData<Integer> getItemDownloadSelectedCounter() {
+        return itemDownloadSelectedCounter;
+    }
+
+    public void setAudioUrlSelected(HashMap<String, String> audioUrlSelected) {
+        audioUrlSelectedLiveData.setValue(audioUrlSelected);
+    }
+
+    public LiveData<HashMap<String, String>> getAudioUrlSelected() {
+        return audioUrlSelectedLiveData;
+    }
+
+    public void setAudioCheckedPosListLiveData(HashMap<String, Integer> audioCheckedPosList) {
+        audioCheckedPosListLiveData.setValue(audioCheckedPosList);
+    }
+
+    public LiveData<HashMap<String, Integer>> getAudioCheckedPosList() {
+        return audioCheckedPosListLiveData;
     }
 }
