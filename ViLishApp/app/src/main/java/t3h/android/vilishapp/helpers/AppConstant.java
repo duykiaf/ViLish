@@ -43,6 +43,7 @@ public class AppConstant {
     public static final String AUDIO_ITEM = "audioItem";
     public static final String ITEM_SELECTED_COUNTER_TXT = "/10 item selected";
     public static final String MAX_DOWNLOAD_FILES_MESSAGE = "You are only allowed to download 10 files at a time!";
+    public static final int CORE_POOL_SIZE = 1;
     public static int REQUEST_CODE = 6798;
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
