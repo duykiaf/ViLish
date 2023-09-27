@@ -1,5 +1,7 @@
 package t3h.android.vilishapp.ui;
 
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -46,6 +48,7 @@ import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.ExoplayerHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
+import t3h.android.vilishapp.services.DownloadAudioService;
 import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
 public class AudioListFragment extends Fragment {
@@ -426,6 +429,12 @@ public class AudioListFragment extends Fragment {
             audioViewModel.getAudioUrlSelected().observe(requireActivity(), audioUrlSelectedLiveData -> {
                 Log.e("DNV-checkedList", audioUrlSelectedLiveData.toString());
             });
+
+            // start download service
+            Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                requireActivity().startForegroundService(intent);
+            }
         });
     }
 
