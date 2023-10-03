@@ -36,7 +36,6 @@ public class AppConstant {
     public static final String REMOVE_BOOKMARK_FAILED = "Remove bookmark failed";
     public static final String DOWNLOAD_ICON = "Download icon";
     public static final String CHECK_CIRCLE_ICON = "Check circle icon";
-    public static final String DOWNLOAD_MESS = "Downloading...";
     public static final int MAX_DOWNLOAD_FILES = 10;
     public static final String PLAY_ANOTHER_AUDIO = "playAnotherAudio";
     public static final String CURRENT_MEDIA_ITEM_INDEX = "currentMediaItemIndex";
@@ -44,6 +43,11 @@ public class AppConstant {
     public static final String ITEM_SELECTED_COUNTER_TXT = "/10 item selected";
     public static final String MAX_DOWNLOAD_FILES_MESSAGE = "You are only allowed to download 10 files at a time!";
     public static final int CORE_POOL_SIZE = 1;
+    public static final String DOWNLOADING_TITLE = "Downloading Audio";
+    public static final String DOWNLOAD_COMPLETE = "Download Complete";
+    public static final String AUDIO_SELECTED_LIST = "audioSelectedList";
+    public static final int KEEP_ALIVE_TIME = 5;
+    public static final String DOWNLOAD_COMPLETED_BROADCAST = "t3h.android.vilishapp.DOWNLOAD_COMPLETED_BROADCAST";
     public static int REQUEST_CODE = 6798;
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
