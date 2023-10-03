@@ -1,6 +1,9 @@
 package t3h.android.vilishapp.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -65,11 +68,20 @@ public class AudioListFragment extends Fragment {
     private AudioViewModel audioViewModel;
     private Disposable disposable;
     private AudioRepository audioRepository;
-    private HashMap<String, String> audioUrlSelected = new HashMap<>();
+    private HashMap<String, Audio> audioSelected = new HashMap<>();
     private HashMap<String, Integer> audioPositionSelected = new HashMap<>();
     private Bundle playingAudioBundle = new Bundle();
     private boolean isTheFirstTimePlayAudio = true;
     private StringBuffer itemSelectedCounterTxt;
+    private BroadcastReceiver downloadCompletedBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean downloadCompleted = intent.getBooleanExtra(AppConstant.DOWNLOAD_COMPLETE, false);
+            if (downloadCompleted) {
+                initCheckedOrDownloadOrTrashIcon();
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -109,14 +121,20 @@ public class AudioListFragment extends Fragment {
         initItemSelectedCounterLayout();
 
         // get audio url selected list
-        audioViewModel.getAudioUrlSelected().observe(requireActivity(), audioUrlSelectedLiveData ->
-                audioUrlSelected = audioUrlSelectedLiveData
+        audioViewModel.getAudioSelected().observe(requireActivity(), audioSelectedLiveData ->
+                audioSelected = audioSelectedLiveData
         );
 
         // get audio position selected list
         audioViewModel.getAudioCheckedPosList().observe(requireActivity(), posList -> audioPositionSelected = posList);
 
         initAudioControlBottom();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        requireActivity().registerReceiver(downloadCompletedBroadcast, new IntentFilter(AppConstant.DOWNLOAD_COMPLETED_BROADCAST));
     }
 
     private void initTopAppBar() {
@@ -214,7 +232,7 @@ public class AudioListFragment extends Fragment {
         closeSearchLayout();
         onAudioItemClick();
         onDownloadIcClickListener();
-        closeItemCounterNotification();
+        binding.closeNotification.setOnClickListener(v -> initCheckedOrDownloadOrTrashIcon());
     }
 
     private void playerControls() {
@@ -344,13 +362,13 @@ public class AudioListFragment extends Fragment {
 
                                 audioViewModel.setItemDownloadSelectedCounter(itemCounter);
 
-                                audioUrlSelected.put(item.getId(), item.getName());
+                                audioSelected.put(item.getId(), item);
                                 audioPositionSelected.put(item.getId(), position);
                             } else {
                                 Toast.makeText(requireContext(), AppConstant.MAX_DOWNLOAD_FILES_MESSAGE, Toast.LENGTH_SHORT).show();
                             }
                         } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
-                            audioUrlSelected.remove(item.getId());
+                            audioSelected.remove(item.getId());
                             audioPositionSelected.remove(item.getId());
 
                             contentDesc = AppConstant.DOWNLOAD_ICON;
@@ -360,7 +378,7 @@ public class AudioListFragment extends Fragment {
                             itemCounter--;
                             audioViewModel.setItemDownloadSelectedCounter(itemCounter);
                         }
-                        audioViewModel.setAudioUrlSelected(audioUrlSelected);
+                        audioViewModel.setAudioSelected(audioSelected);
                         audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
                         initItemSelectedCounterLayout();
                         break;
@@ -422,31 +440,22 @@ public class AudioListFragment extends Fragment {
     private void onDownloadIcClickListener() {
         binding.download.setOnClickListener(v -> {
             binding.selectedNotificationLayout.setVisibility(View.GONE);
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.messageTxt.setVisibility(View.VISIBLE);
-            binding.messageTxt.setText(AppConstant.DOWNLOAD_MESS);
-
-            audioViewModel.getAudioUrlSelected().observe(requireActivity(), audioUrlSelectedLiveData -> {
-                Log.e("DNV-checkedList", audioUrlSelectedLiveData.toString());
-            });
-
-            // start download service
             Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
+            intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().startForegroundService(intent);
+            } else {
+                requireActivity().startService(intent);
             }
         });
     }
 
-    private void closeItemCounterNotification() {
-        binding.closeNotification.setOnClickListener(v -> {
-            audioViewModel.setAudioUrlSelected(new HashMap<>());
-            audioViewModel.setItemDownloadSelectedCounter(0);
-            initItemSelectedCounterLayout();
-            itemCounter = 0;
-            audioPositionSelected.clear();
-            audioAdapter.notifyDataSetChanged();
-        });
+    private void initCheckedOrDownloadOrTrashIcon() {
+        audioViewModel.setAudioSelected(new HashMap<>());
+        audioViewModel.setItemDownloadSelectedCounter(0);
+        initItemSelectedCounterLayout();
+        audioPositionSelected.clear();
+        audioAdapter.notifyDataSetChanged();
     }
 
     private void closeSearchLayout() {
@@ -600,5 +609,6 @@ public class AudioListFragment extends Fragment {
         if (disposable != null) {
             disposable.dispose();
         }
+        requireActivity().unregisterReceiver(downloadCompletedBroadcast);
     }
 }
