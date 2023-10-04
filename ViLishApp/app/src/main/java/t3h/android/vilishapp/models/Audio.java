@@ -2,11 +2,11 @@ package t3h.android.vilishapp.models;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
@@ -14,29 +14,32 @@ import java.io.Serializable;
 @Entity(tableName = "bookmarks")
 public class Audio implements Serializable {
     @PrimaryKey
-    @SerializedName("id")
+    @ColumnInfo(name = "id")
     @NonNull
     private String id;
 
-    @SerializedName("name")
+    @ColumnInfo(name = "name")
     private String name;
 
-    @SerializedName("audio_file_from_device")
+    @ColumnInfo(name = "audio_file_name")
+    private String audioFileName;
+
+    @ColumnInfo(name = "audio_file_from_device")
     private String audioFileFromDevice;
 
-    @SerializedName("audio_file_from_firebase")
+    @ColumnInfo(name = "audio_file_from_firebase")
     private String audioFileFromFirebase;
 
-    @SerializedName("lyrics")
+    @ColumnInfo(name = "lyrics")
     private String lyrics;
 
-    @SerializedName("translations")
+    @ColumnInfo(name = "translations")
     private String translations;
 
-    @SerializedName("topic_id")
+    @ColumnInfo(name = "topic_id")
     private String topicId;
 
-    @SerializedName("topic_name")
+    @ColumnInfo(name = "topic_name")
     private String topicName;
 
     public Audio() {
@@ -115,6 +118,14 @@ public class Audio implements Serializable {
 
     public void setTopicName(String topicName) {
         this.topicName = topicName;
+    }
+
+    public String getAudioFileName() {
+        return audioFileName;
+    }
+
+    public void setAudioFileName(String audioFileName) {
+        this.audioFileName = audioFileName;
     }
 
     @Override
