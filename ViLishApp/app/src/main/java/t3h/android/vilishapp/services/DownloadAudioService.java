@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.models.Audio;
+import t3h.android.vilishapp.repositories.DownloadedAudioRepository;
 
 public class DownloadAudioService extends Service {
     private ThreadPoolExecutor executor;
@@ -31,6 +32,7 @@ public class DownloadAudioService extends Service {
     private NotificationCompat.Builder notificationBuilder;
     private int completedDownloads, urlsSize;
     private HashMap<String, Audio> audioSelectedList = new HashMap<>();
+    private DownloadedAudioRepository downloadedAudioRepository;
 
     @Override
     public void onCreate() {
@@ -39,6 +41,7 @@ public class DownloadAudioService extends Service {
                 AppConstant.KEEP_ALIVE_TIME, TimeUnit.SECONDS, new LinkedBlockingQueue<>()
         );
         sendNotification();
+        downloadedAudioRepository = new DownloadedAudioRepository(getApplication());
     }
 
     private void sendNotification() {
@@ -64,12 +67,7 @@ public class DownloadAudioService extends Service {
                 urlsSize = audioSelectedList.size();
 
                 for (Map.Entry<String, Audio> entry : audioSelectedList.entrySet()) {
-                    StringBuilder currentFileDownloading = new StringBuilder();
-                    StringBuilder fileName = new StringBuilder();
-                    // thứ tự file đang tải
-                    currentFileDownloading.append(completedDownloads + 1).append("/").append(urlsSize);
-                    fileName.append(entry.getValue().getName()).append(".mp3");
-                    downloadAudio(entry.getValue().getAudioFileFromFirebase(), fileName.toString(), currentFileDownloading);
+                    downloadAudio(entry.getValue());
                 }
 
                 // tải xong thì dừng foreground trước
@@ -92,11 +90,17 @@ public class DownloadAudioService extends Service {
         return START_NOT_STICKY;
     }
 
-    private void downloadAudio(String audioUrl, String fileName, StringBuilder currentFileDownloading) {
-        // Thực hiện tải âm thanh từ audioUrl
+    // Thực hiện tải âm thanh từ audioUrl
+    private void downloadAudio(Audio audio) {
         try {
+            // thứ tự file đang tải
+            StringBuilder currentFileDownloading = new StringBuilder();
+            currentFileDownloading.append(completedDownloads + 1).append("/").append(urlsSize);
+
+            String fileName = audio.getAudioFileName();
+
             // Tạo kết nối đến URL của tệp âm thanh trên Firebase Storage
-            URL url = new URL(audioUrl);
+            URL url = new URL(audio.getAudioFileFromFirebase());
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             int totalBytes = connection.getContentLength();
 
@@ -133,6 +137,9 @@ public class DownloadAudioService extends Service {
             inputStream.close();
             outputStream.close();
             connection.disconnect();
+
+            // lưu audio tải xuống vào cơ sở dữ liệu
+            downloadedAudioRepository.insertDownloadedAudio(audio);
         } catch (IOException e) {
             e.printStackTrace();
         }

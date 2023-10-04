@@ -7,11 +7,14 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import t3h.android.vilishapp.dao.BookmarksDao;
+import t3h.android.vilishapp.dao.DownloadedAudioDao;
 import t3h.android.vilishapp.models.Audio;
+import t3h.android.vilishapp.models.DownloadedAudio;
 
-@Database(entities = {Audio.class}, version = 1, exportSchema = false)
+@Database(entities = {Audio.class, DownloadedAudio.class}, version = 1, exportSchema = false)
 public abstract class LocalDatabase extends RoomDatabase {
     public abstract BookmarksDao bookmarksDao();
+    public abstract DownloadedAudioDao downloadedAudioDao();
 
     private static LocalDatabase INSTANCE;
 

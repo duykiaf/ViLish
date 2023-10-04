@@ -25,7 +25,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
     private List<Audio> itemList, dataSource;
     private OnAudioItemClickListener onAudioItemClickListener;
     private DiffUtil.DiffResult diffResult;
-    private List<String> bookmarkAudioIds;
+    private List<String> bookmarkAudioIds, downloadedAudioIds;
     private HashMap<String, Integer> audioCheckedList;
 
     public AudioAdapter(Context context) {
@@ -40,6 +40,10 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
 
     public void setBookmarkAudioIds(List<String> bookmarkAudioIds) {
         this.bookmarkAudioIds = bookmarkAudioIds;
+    }
+
+    public void setDownloadedAudioIds(List<String> downloadedAudioIds) {
+        this.downloadedAudioIds = downloadedAudioIds;
     }
 
     public void setAudioCheckedList(HashMap<String, Integer> audioCheckedList) {
@@ -105,6 +109,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
             initBookmarkIcon(audioInfo);
 
             // init download/trash icon
+            initDownloadOrTrashIcon(audioInfo);
 
             // init checked or download icon
             initCheckedOrDownloadIcon(audioInfo);
@@ -134,6 +139,21 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.AudioViewHol
                     } else {
                         binding.bookmarkIcon.setContentDescription(context.getString(R.string.bookmark_border_icon));
                         binding.bookmarkIcon.setImageResource(R.drawable.bookmark_blue_border_ic);
+                    }
+                }
+            }
+        }
+
+        private void initDownloadOrTrashIcon(Audio audioInfo) {
+            if (downloadedAudioIds != null) {
+                for (String id : downloadedAudioIds) {
+                    if (audioInfo.getId().equals(id)) {
+                        binding.downloadIcon.setContentDescription(AppConstant.TRASH_ICON);
+                        binding.downloadIcon.setImageResource(R.drawable.trash);
+                        break;
+                    } else {
+                        binding.downloadIcon.setContentDescription(AppConstant.DOWNLOAD_ICON);
+                        binding.downloadIcon.setImageResource(R.drawable.blue_download_ic);
                     }
                 }
             }

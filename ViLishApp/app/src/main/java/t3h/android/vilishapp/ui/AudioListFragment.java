@@ -51,6 +51,7 @@ import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.ExoplayerHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
+import t3h.android.vilishapp.repositories.DownloadedAudioRepository;
 import t3h.android.vilishapp.services.DownloadAudioService;
 import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
@@ -72,6 +73,7 @@ public class AudioListFragment extends Fragment {
     private HashMap<String, Integer> audioPositionSelected = new HashMap<>();
     private Bundle playingAudioBundle = new Bundle();
     private boolean isTheFirstTimePlayAudio = true;
+    private DownloadedAudioRepository downloadedAudioRepository;
     private StringBuffer itemSelectedCounterTxt;
     private BroadcastReceiver downloadCompletedBroadcast = new BroadcastReceiver() {
         @Override
@@ -95,6 +97,7 @@ public class AudioListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
+        downloadedAudioRepository = new DownloadedAudioRepository(requireActivity().getApplication());
         audioRepository = new AudioRepository(requireActivity().getApplication());
         audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
         player = audioViewModel.getExoplayer();
@@ -178,7 +181,13 @@ public class AudioListFragment extends Fragment {
                                 visibility = View.VISIBLE;
                             }
                             binding.messageTxt.setVisibility(visibility);
+
                             audioAdapter.setAudioCheckedList(audioPositionSelected);
+
+                            downloadedAudioRepository.getDownloadedAudioIds().observe(requireActivity(), downloadedAudioIds ->
+                                    audioAdapter.setDownloadedAudioIds(downloadedAudioIds)
+                            );
+
                             audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
                                 audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
                                 audioAdapter.updateItemList(audioListByTopicId);
