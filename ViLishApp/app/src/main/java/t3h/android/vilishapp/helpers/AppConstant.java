@@ -51,4 +51,5 @@ public class AppConstant {
     public static int REQUEST_CODE = 6798;
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
+    public static final String TRASH_ICON = "Trash icon";
 }
