@@ -138,6 +138,8 @@ public class DownloadAudioService extends Service {
             outputStream.close();
             connection.disconnect();
 
+            // lấy đường dẫn audio đã tải xuống trong bộ nhớ trong
+            audio.setAudioFileFromDevice(file.getAbsolutePath());
             // lưu audio tải xuống vào cơ sở dữ liệu
             downloadedAudioRepository.insertDownloadedAudio(audio);
         } catch (IOException e) {
