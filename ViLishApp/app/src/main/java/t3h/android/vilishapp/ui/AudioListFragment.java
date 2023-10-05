@@ -386,6 +386,8 @@ public class AudioListFragment extends Fragment {
 
                             itemCounter--;
                             audioViewModel.setItemDownloadSelectedCounter(itemCounter);
+                        } else if (icon.getContentDescription().equals(AppConstant.TRASH_ICON)) {
+                            Log.e("DNV-path", item.getAudioFileFromDevice() == null ? "null" : item.getAudioFileFromDevice());
                         }
                         audioViewModel.setAudioSelected(audioSelected);
                         audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
