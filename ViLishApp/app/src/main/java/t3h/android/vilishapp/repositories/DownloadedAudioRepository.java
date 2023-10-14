@@ -21,7 +21,7 @@ public class DownloadedAudioRepository {
         downloadedAudioDao = LocalDatabase.getInstance(application).downloadedAudioDao();
     }
 
-    public LiveData<List<DownloadedAudio>> getDownloadedAudioList() {
+    public LiveData<List<Audio>> getDownloadedAudioList() {
         return downloadedAudioDao.getDownloadedAudioList();
     }
 

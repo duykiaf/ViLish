@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -31,6 +32,7 @@ import t3h.android.vilishapp.adapters.TopicAdapter;
 import t3h.android.vilishapp.databinding.FragmentTopicsListBinding;
 import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.models.Topic;
+import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
 public class TopicsListFragment extends Fragment {
     private FragmentTopicsListBinding binding;
@@ -39,6 +41,7 @@ public class TopicsListFragment extends Fragment {
     private List<Topic> topicList = new ArrayList<>();
     private TopicAdapter topicAdapter;
     private int visibility;
+    private AudioViewModel audioViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +55,7 @@ public class TopicsListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
+        audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
         initTopicsList();
     }
 
@@ -105,6 +109,8 @@ public class TopicsListFragment extends Fragment {
             reloadListAfterSearch();
         });
         topicAdapter.setOnTopicItemClickListener(item -> {
+            audioViewModel.setIsAudioListScreen(true);
+
             Bundle bundle = new Bundle();
             bundle.putString(AppConstant.TOPIC_ID, item.getId());
             bundle.putString(AppConstant.TOPIC_NAME, item.getName());
@@ -128,7 +134,17 @@ public class TopicsListFragment extends Fragment {
                     binding.searchEdtLayout.setVisibility(visibility);
                     binding.closeSearchLayout.setVisibility(visibility);
                     return true;
+                case R.id.downloadItem:
+                    audioViewModel.setIsAudioDownloadedScreen(true);
+                    audioViewModel.setIsAudioListScreen(false);
+                    audioViewModel.setIsBookmarksScreen(false);
+                    navController.navigate(R.id.action_topicsListFragment_to_audioListFragment);
+                    return true;
                 case R.id.bookmarksItem:
+                    audioViewModel.setIsBookmarksScreen(true);
+                    audioViewModel.setIsAudioDownloadedScreen(false);
+                    audioViewModel.setIsAudioListScreen(false);
+                    navController.navigate(R.id.action_topicsListFragment_to_audioListFragment);
                     return true;
             }
             return false;

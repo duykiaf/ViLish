@@ -15,7 +15,7 @@ import t3h.android.vilishapp.models.DownloadedAudio;
 @Dao
 public interface DownloadedAudioDao {
     @Query("select * from downloaded_audio")
-    LiveData<List<DownloadedAudio>> getDownloadedAudioList();
+    LiveData<List<Audio>> getDownloadedAudioList();
 
     @Query("select id from downloaded_audio")
     LiveData<List<String>> getDownloadedAudioIds();

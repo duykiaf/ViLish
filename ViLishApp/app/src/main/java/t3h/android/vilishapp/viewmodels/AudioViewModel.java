@@ -25,6 +25,11 @@ public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> itemDownloadSelectedCounter = new MutableLiveData<>(0);
     private MutableLiveData<HashMap<String, Audio>> audioSelectedLiveData = new MutableLiveData<>();
     private MutableLiveData<HashMap<String, Integer>> audioCheckedPosListLiveData = new MutableLiveData<>();
+    private MutableLiveData<Boolean> isAudioListScreen = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isBookmarksScreen = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isAudioDownloadedScreen = new MutableLiveData<>(false);
+    private MutableLiveData<Integer> bookmarkDeletedPos = new MutableLiveData<>(-1);
+    private MutableLiveData<Integer> downloadAudioDeletedPos = new MutableLiveData<>(-1);
 
     public AudioViewModel(@NonNull Application application) {
         super(application);
@@ -112,5 +117,45 @@ public class AudioViewModel extends AndroidViewModel {
 
     public LiveData<HashMap<String, Integer>> getAudioCheckedPosList() {
         return audioCheckedPosListLiveData;
+    }
+
+    public void setIsAudioListScreen(Boolean isAudioListScreen) {
+        this.isAudioListScreen.setValue(isAudioListScreen);
+    }
+
+    public LiveData<Boolean> audioListScreenFlag() {
+        return isAudioListScreen;
+    }
+
+    public void setIsBookmarksScreen(Boolean isBookmarksScreen) {
+        this.isBookmarksScreen.setValue(isBookmarksScreen);
+    }
+
+    public LiveData<Boolean> bookmarksScreenFlag() {
+        return isBookmarksScreen;
+    }
+
+    public void setIsAudioDownloadedScreen(Boolean isAudioDownloadedScreen) {
+        this.isAudioDownloadedScreen.setValue(isAudioDownloadedScreen);
+    }
+
+    public LiveData<Boolean> audioDownloadedScreenFlag() {
+        return isAudioDownloadedScreen;
+    }
+
+    public void setBookmarkDeletedPos(Integer bookmarkDeletedPos) {
+        this.bookmarkDeletedPos.setValue(bookmarkDeletedPos);
+    }
+
+    public Integer getBookmarkDeletedPos() {
+        return bookmarkDeletedPos.getValue();
+    }
+
+    public void setDownloadAudioDeletePos(Integer downloadAudioDeletePos) {
+        this.downloadAudioDeletedPos.setValue(downloadAudioDeletePos);
+    }
+
+    public Integer getDownloadAudioDeletePos() {
+        return downloadAudioDeletedPos.getValue();
     }
 }
