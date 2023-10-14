@@ -22,7 +22,8 @@ public class AppConstant {
     public static final int ACTION_PLAY = 3;
     public static final int ACTION_NEXT = 4;
     public static final int ACTION_CLEAR_NOTIFICATION = 5;
-    public static final String BOOKMARK = "Bookmark";
+    public static final String BOOKMARKS = "Bookmarks";
+    public static final String DOWNLOADED = "Downloaded";
     public static final String PLAY = "Play";
     public static final String PAUSE = "Pause";
     public static final String NEXT = "Next";
