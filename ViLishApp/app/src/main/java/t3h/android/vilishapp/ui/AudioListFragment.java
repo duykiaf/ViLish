@@ -9,7 +9,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -25,7 +24,6 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
@@ -292,6 +290,7 @@ public class AudioListFragment extends Fragment {
         onAudioItemClick();
         onDownloadIcClickListener();
         binding.closeNotification.setOnClickListener(v -> initCheckedOrDownloadOrTrashIcon());
+        deleteAllBookmarksOrDownloadedAudios();
     }
 
     private void playerControls() {
@@ -810,6 +809,55 @@ public class AudioListFragment extends Fragment {
         }
         binding.messageTxt.setVisibility(visibility);
         audioAdapter.searchList(audioSearchList);
+    }
+
+    private void deleteAllBookmarksOrDownloadedAudios() {
+        binding.deleteAllBtn.setOnClickListener(v -> {
+            Completable deleteAllObservable = deleteAll();
+            CompletableObserver completableObserver = deleteAllCompletableObserver();
+            if (deleteAllObservable != null) {
+                deleteAllObservable.subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(completableObserver);
+            } else {
+                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+            }
+        });
+        initDeleteAllBtn(false);
+    }
+
+    private CompletableObserver deleteAllCompletableObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.DELETE_SUCCESS, Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.DELETE_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private Completable deleteAll() {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                if (isBookmarksScreen) {
+                    audioRepository.deleteAllBookmarks();
+                } else if (isAudioDownloadedScreen) {
+                    downloadedAudioRepository.deleteAllDownloadedAudios();
+                }
+                emitter.onComplete();
+            }
+        });
     }
 
     @Override

@@ -50,6 +50,8 @@ public class AppConstant {
     public static final int KEEP_ALIVE_TIME = 5;
     public static final String DOWNLOAD_COMPLETED_BROADCAST = "t3h.android.vilishapp.DOWNLOAD_COMPLETED_BROADCAST";
     public static final String DOWNLOAD_IS_IN_PROGRESS = "The download is in progress. Please wait";
+    public static final String DELETE_SUCCESS = "Delete successfully";
+    public static final String DELETE_FAILED = "Delete failed";
     public static int REQUEST_CODE = 6798;
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";

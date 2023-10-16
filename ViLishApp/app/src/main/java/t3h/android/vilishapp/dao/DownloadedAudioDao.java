@@ -27,5 +27,5 @@ public interface DownloadedAudioDao {
     int deleteSingleDownloadedAudio(Audio audio);
 
     @Query("delete from downloaded_audio")
-    void deleteAllDownloadedAudio();
+    void deleteAllDownloadedAudios();
 }

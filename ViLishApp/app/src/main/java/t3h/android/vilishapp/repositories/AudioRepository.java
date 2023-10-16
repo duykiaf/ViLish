@@ -38,4 +38,8 @@ public class AudioRepository {
         }
         return 0;
     }
+
+    public void deleteAllBookmarks() {
+        bookmarksDao.deleteAllBookmark();
+    }
 }

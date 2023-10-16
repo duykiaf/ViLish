@@ -24,4 +24,7 @@ public interface BookmarksDao {
 
     @Delete
     int deleteBookmark(Audio audio);
+
+    @Query("delete from bookmarks")
+    void deleteAllBookmark();
 }

@@ -37,7 +37,7 @@ public class DownloadedAudioRepository {
         return downloadedAudioDao.deleteSingleDownloadedAudio(audio);
     }
 
-    public void deleteAllDownloadedAudio() {
-        downloadedAudioDao.deleteAllDownloadedAudio();
+    public void deleteAllDownloadedAudios() {
+        downloadedAudioDao.deleteAllDownloadedAudios();
     }
 }
