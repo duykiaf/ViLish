@@ -30,6 +30,7 @@ public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isAudioDownloadedScreen = new MutableLiveData<>(false);
     private MutableLiveData<Integer> bookmarkDeletedPos = new MutableLiveData<>(-1);
     private MutableLiveData<Integer> downloadAudioDeletedPos = new MutableLiveData<>(-1);
+    private MutableLiveData<Boolean> isDownloading = new MutableLiveData<>(false);
 
     public AudioViewModel(@NonNull Application application) {
         super(application);
@@ -157,5 +158,13 @@ public class AudioViewModel extends AndroidViewModel {
 
     public Integer getDownloadAudioDeletePos() {
         return downloadAudioDeletedPos.getValue();
+    }
+
+    public void setIsDownloading(Boolean isDownloading) {
+        this.isDownloading.setValue(isDownloading);
+    }
+
+    public Boolean getDownloadingFlag() {
+        return isDownloading.getValue();
     }
 }

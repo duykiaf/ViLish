@@ -61,7 +61,7 @@ public class AudioListFragment extends Fragment {
     private FragmentAudioListBinding binding;
     private NavController navController;
     private FirebaseDatabase firebaseDatabase;
-    private Boolean isAudioListScreen, isBookmarksScreen, isAudioDownloadedScreen;
+    private Boolean isAudioListScreen, isBookmarksScreen, isAudioDownloadedScreen, isDownloading;
     private String topicId, oldTopicId;
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
@@ -86,6 +86,7 @@ public class AudioListFragment extends Fragment {
             boolean downloadCompleted = intent.getBooleanExtra(AppConstant.DOWNLOAD_COMPLETE, false);
             if (downloadCompleted) {
                 initCheckedOrDownloadOrTrashIcon();
+                audioViewModel.setIsDownloading(false);
             }
         }
     };
@@ -435,38 +436,44 @@ public class AudioListFragment extends Fragment {
             public void onIconClick(Audio item, int position, ImageView icon) {
                 switch (icon.getId()) {
                     case R.id.downloadIcon:
-                        binding.selectedNotificationLayout.setVisibility(View.VISIBLE);
-                        if (icon.getContentDescription().equals(AppConstant.DOWNLOAD_ICON)) {
-                            if (itemCounter < AppConstant.MAX_DOWNLOAD_FILES) {
-                                itemCounter++;
+                        isDownloading = audioViewModel.getDownloadingFlag();
+                        if (!isDownloading) {
+                            binding.selectedNotificationLayout.setVisibility(View.VISIBLE);
+                            if (icon.getContentDescription().equals(AppConstant.DOWNLOAD_ICON)) {
+                                if (itemCounter < AppConstant.MAX_DOWNLOAD_FILES) {
+                                    itemCounter++;
 
-                                contentDesc = AppConstant.CHECK_CIRCLE_ICON;
-                                resId = R.drawable.check_circle_ic;
+                                    contentDesc = AppConstant.CHECK_CIRCLE_ICON;
+                                    resId = R.drawable.check_circle_ic;
+                                    initDownloadOrCheckCircleIc(icon);
+
+                                    audioViewModel.setItemDownloadSelectedCounter(itemCounter);
+
+                                    audioSelected.put(item.getId(), item);
+                                    audioPositionSelected.put(item.getId(), position);
+                                } else {
+                                    Toast.makeText(requireContext(), AppConstant.MAX_DOWNLOAD_FILES_MESSAGE, Toast.LENGTH_SHORT).show();
+                                }
+                            } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
+                                audioSelected.remove(item.getId());
+                                audioPositionSelected.remove(item.getId());
+
+                                contentDesc = AppConstant.DOWNLOAD_ICON;
+                                resId = R.drawable.white_download_ic;
                                 initDownloadOrCheckCircleIc(icon);
 
+                                itemCounter--;
                                 audioViewModel.setItemDownloadSelectedCounter(itemCounter);
-
-                                audioSelected.put(item.getId(), item);
-                                audioPositionSelected.put(item.getId(), position);
-                            } else {
-                                Toast.makeText(requireContext(), AppConstant.MAX_DOWNLOAD_FILES_MESSAGE, Toast.LENGTH_SHORT).show();
                             }
-                        } else if (icon.getContentDescription().equals(AppConstant.CHECK_CIRCLE_ICON)) {
-                            audioSelected.remove(item.getId());
-                            audioPositionSelected.remove(item.getId());
-
-                            contentDesc = AppConstant.DOWNLOAD_ICON;
-                            resId = R.drawable.white_download_ic;
-                            initDownloadOrCheckCircleIc(icon);
-
-                            itemCounter--;
-                            audioViewModel.setItemDownloadSelectedCounter(itemCounter);
-                        } else if (icon.getContentDescription().equals(AppConstant.TRASH_ICON)) {
-                            Log.e("DNV-path", item.getAudioFileFromDevice() == null ? "null" : item.getAudioFileFromDevice());
+                            audioViewModel.setAudioSelected(audioSelected);
+                            audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
+                            initItemSelectedCounterLayout();
+                        } else {
+                            Toast.makeText(requireContext(), AppConstant.DOWNLOAD_IS_IN_PROGRESS, Toast.LENGTH_SHORT).show();
                         }
-                        audioViewModel.setAudioSelected(audioSelected);
-                        audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
-                        initItemSelectedCounterLayout();
+//                        if (icon.getContentDescription().equals(AppConstant.TRASH_ICON)) {
+//                            Log.e("DNV-path", item.getAudioFileFromDevice() == null ? "null" : item.getAudioFileFromDevice());
+//                        }
                         break;
                     case R.id.bookmarkIcon:
                         if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
@@ -598,6 +605,7 @@ public class AudioListFragment extends Fragment {
             binding.selectedNotificationLayout.setVisibility(View.GONE);
             Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
             intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
+            audioViewModel.setIsDownloading(true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 requireActivity().startForegroundService(intent);
             } else {
