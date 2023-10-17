@@ -59,7 +59,7 @@ public class AudioListFragment extends Fragment {
     private FragmentAudioListBinding binding;
     private NavController navController;
     private FirebaseDatabase firebaseDatabase;
-    private Boolean isAudioListScreen, isBookmarksScreen, isAudioDownloadedScreen, isDownloading;
+    private Boolean isAudioListScreen, isBookmarksScreen, isAudioDownloadedScreen, isDownloading, isSearching;
     private String topicId, oldTopicId;
     private List<Audio> activeAudioList = new ArrayList<>();
     private List<Audio> audioListByTopicId = new ArrayList<>();
@@ -238,7 +238,10 @@ public class AudioListFragment extends Fragment {
                             binding.messageTxt.setVisibility(visibility);
                             audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
                                 audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
-                                audioAdapter.updateItemList(audioListByTopicId);
+                                isSearching = audioViewModel.getSearchingFlag();
+                                if (!isSearching) {
+                                    audioAdapter.updateItemList(audioListByTopicId);
+                                }
                             });
                             setAudioCheckedListAndDownloadedAudioIds();
                         }
@@ -623,6 +626,7 @@ public class AudioListFragment extends Fragment {
 
     private void closeSearchLayout() {
         binding.closeSearchLayout.setOnClickListener(v -> {
+            audioViewModel.setIsSearching(false);
             binding.searchEdtLayout.setVisibility(View.GONE);
             binding.closeSearchLayout.setVisibility(View.GONE);
             initDeleteAllBtn(bookmarksList != null && !bookmarksList.isEmpty());
@@ -707,11 +711,13 @@ public class AudioListFragment extends Fragment {
         switch (menu.getItemId()) {
             case R.id.searchItem:
                 if (binding.searchEdtLayout.getVisibility() == View.VISIBLE) {
+                    audioViewModel.setIsSearching(false);
                     binding.searchEdtLayout.setVisibility(View.GONE);
                     binding.closeSearchLayout.setVisibility(View.GONE);
                     initDeleteAllBtn(bookmarksList != null && !bookmarksList.isEmpty());
                     reloadAudioListAfterSearch();
                 } else {
+                    audioViewModel.setIsSearching(true);
                     binding.searchEdtLayout.setVisibility(View.VISIBLE);
                     binding.closeSearchLayout.setVisibility(View.VISIBLE);
                     initDeleteAllBtn(false);
@@ -781,6 +787,7 @@ public class AudioListFragment extends Fragment {
         } else {
             if (isBookmarksScreen) {
                 audioRepository.getBookmarkList().observe(requireActivity(), bookmarksList -> {
+                    audioSearchList.clear();
                     for (Audio audio : bookmarksList) {
                         if (audio.getName().toLowerCase().contains(keyword.toLowerCase())) {
                             audioSearchList.add(audio);
@@ -790,6 +797,7 @@ public class AudioListFragment extends Fragment {
                 });
             } else if (isAudioDownloadedScreen) {
                 downloadedAudioRepository.getDownloadedAudioList().observe(requireActivity(), downloadedAudios -> {
+                    audioSearchList.clear();
                     for (Audio audio : downloadedAudios) {
                         if (audio.getName().toLowerCase().contains(keyword.toLowerCase())) {
                             audioSearchList.add(audio);

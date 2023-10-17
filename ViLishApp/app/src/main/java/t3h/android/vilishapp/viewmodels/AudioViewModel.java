@@ -31,6 +31,7 @@ public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<Integer> bookmarkDeletedPos = new MutableLiveData<>(-1);
     private MutableLiveData<Integer> downloadAudioDeletedPos = new MutableLiveData<>(-1);
     private MutableLiveData<Boolean> isDownloading = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isSearching = new MutableLiveData<>(false);
 
     public AudioViewModel(@NonNull Application application) {
         super(application);
@@ -166,5 +167,13 @@ public class AudioViewModel extends AndroidViewModel {
 
     public Boolean getDownloadingFlag() {
         return isDownloading.getValue();
+    }
+
+    public void setIsSearching(Boolean isSearching) {
+        this.isSearching.setValue(isSearching);
+    }
+
+    public Boolean getSearchingFlag() {
+        return isSearching.getValue();
     }
 }
