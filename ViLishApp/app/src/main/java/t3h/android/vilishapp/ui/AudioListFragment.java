@@ -398,36 +398,11 @@ public class AudioListFragment extends Fragment {
                         if (oldTopicId != null && !Objects.equals(oldTopicId, topicId)) {
                             player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), 0, 0);
                         }
-
-                        if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimePlayAudio)) {
-                            setMediaItemsOnAudiosByIdScreen(position);
-                        } else {
-                            if (isTheFirstTimePlayAudio) {
-                                setMediaItemsOnAudiosByIdScreen(position);
-                            } else {
-                                prepareAndPlayAudio(player);
-                            }
-                        }
+                        playAudioAt(currentMediaItemIndex, position, AppConstant.AUDIO_LIST_BY_ID);
                     } else if (isBookmarksScreen) {
-                        if (position != currentMediaItemIndex || (currentMediaItemIndex == 0 && isTheFirstTimePlayAudio)) {
-                            setMediaItemsOnBookmarksScreen(position);
-                        } else {
-                            if (isTheFirstTimePlayAudio) {
-                                setMediaItemsOnBookmarksScreen(position);
-                            } else {
-                                prepareAndPlayAudio(player);
-                            }
-                        }
+                        playAudioAt(currentMediaItemIndex, position, AppConstant.BOOKMARKS);
                     } else if (isAudioDownloadedScreen) {
-                        if (currentMediaItemIndex != position || (currentMediaItemIndex == 0 && isTheFirstTimePlayAudio)) {
-                            setMediaItemsOnDownloadedScreen(position);
-                        } else {
-                            if (isTheFirstTimePlayAudio) {
-                                setMediaItemsOnDownloadedScreen(position);
-                            } else {
-                                prepareAndPlayAudio(player);
-                            }
-                        }
+                        playAudioAt(currentMediaItemIndex, position, AppConstant.DOWNLOADED);
                     }
                 }
                 playingAudioBundle.putInt(AppConstant.CURRENT_MEDIA_ITEM_INDEX, position);
@@ -506,8 +481,6 @@ public class AudioListFragment extends Fragment {
                             } else {
                                 Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
                             }
-
-                            updateAudioStateAfterRemoveBookmark();
                         }
                         icon.setImageResource(resId);
                         icon.setContentDescription(contentDesc);
@@ -517,61 +490,77 @@ public class AudioListFragment extends Fragment {
         });
     }
 
-    private void setMediaItemsOnAudiosByIdScreen(int position) {
-        player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
-        isTheFirstTimePlayAudio = false;
+    private void playAudioAt(int currentMediaItemIndex, int position, String screenTitle) {
+        if (position != currentMediaItemIndex || (currentMediaItemIndex == 0 && isTheFirstTimePlayAudio)) {
+            setMediaItems(screenTitle, position);
+        } else {
+            if (isTheFirstTimePlayAudio) {
+                setMediaItems(screenTitle, position);
+            } else {
+                prepareAndPlayAudio(player);
+            }
+        }
     }
 
-    private void setMediaItemsOnBookmarksScreen(int position) {
-        // set media items khi chua remove bookmark
-        player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList), position, 0);
+    private void setMediaItems(String screenTitle, int position) {
         isTheFirstTimePlayAudio = false;
+        switch (screenTitle) {
+            case AppConstant.BOOKMARKS:
+                player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList), position, 0);
+                break;
+            case AppConstant.DOWNLOADED:
+                player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList), position, 0);
+                break;
+            default:
+                player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);
+                break;
+        }
     }
 
     private void updateAudioStateAfterRemoveBookmark() {
         // cap nhat trang thai audio khi da remove bookmark
         audioRepository.getBookmarkList().observe(requireActivity(), bookmarksList -> {
-            int deletePosition = audioViewModel.getBookmarkDeletedPos();
-            int currentMediaItemIndex = player.getCurrentMediaItemIndex();
-            if (bookmarksList != null && !bookmarksList.isEmpty()) {
-                isTheFirstTimePlayAudio = false;
-                if (deletePosition < currentMediaItemIndex) {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList),
-                            currentMediaItemIndex - 1, player.getCurrentPosition());
-                } else if (deletePosition > currentMediaItemIndex) {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList),
-                            currentMediaItemIndex, player.getCurrentPosition());
+            if (isBookmarksScreen) {
+                if (bookmarksList != null && !bookmarksList.isEmpty()) {
+                    int deletePosition = audioViewModel.getBookmarkDeletedPos();
+                    int currentMediaItemIndex = player.getCurrentMediaItemIndex();
+                    isTheFirstTimePlayAudio = false;
+                    if (deletePosition < currentMediaItemIndex) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList),
+                                currentMediaItemIndex - 1, player.getCurrentPosition());
+                    } else if (deletePosition > currentMediaItemIndex) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList),
+                                currentMediaItemIndex, player.getCurrentPosition());
+                    } else {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList), 0, 0);
+                    }
                 } else {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList), 0, 0);
+                    setNoDataState();
                 }
-            } else {
-                setNoDataState();
             }
         });
     }
 
-    private void setMediaItemsOnDownloadedScreen(int position) {
-        // set media items khi chua remove downloaded audio
-        player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList), position, 0);
-        isTheFirstTimePlayAudio = false;
-
+    private void updateAudioStateAfterRemoveDownloaded(int position) {
         // cap nhat trang thai audio khi da remove downloaded audio
         downloadedAudioRepository.getDownloadedAudioList().observe(requireActivity(), downloadedAudioList -> {
-            int deletePosition = audioViewModel.getDownloadAudioDeletePos();
-            int currentMediaItemIndex = player.getCurrentMediaItemIndex();
-            if (downloadedAudioList != null && !downloadedAudioList.isEmpty()) {
-                isTheFirstTimePlayAudio = false;
-                if (deletePosition < currentMediaItemIndex) {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList),
-                            currentMediaItemIndex - 1, player.getCurrentPosition());
-                } else if (deletePosition > currentMediaItemIndex) {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList),
-                            currentMediaItemIndex, player.getCurrentPosition());
+            if (isAudioDownloadedScreen) {
+                if (downloadedAudioList != null && !downloadedAudioList.isEmpty()) {
+                    int deletePosition = audioViewModel.getDownloadAudioDeletePos();
+                    int currentMediaItemIndex = player.getCurrentMediaItemIndex();
+                    isTheFirstTimePlayAudio = false;
+                    if (deletePosition < currentMediaItemIndex) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList),
+                                currentMediaItemIndex - 1, player.getCurrentPosition());
+                    } else if (deletePosition > currentMediaItemIndex) {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList),
+                                currentMediaItemIndex, player.getCurrentPosition());
+                    } else {
+                        player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList), 0, 0);
+                    }
                 } else {
-                    player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList), 0, 0);
+                    setNoDataState();
                 }
-            } else {
-                setNoDataState();
             }
         });
     }
@@ -692,6 +681,7 @@ public class AudioListFragment extends Fragment {
             @Override
             public void onComplete() {
                 Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+                updateAudioStateAfterRemoveBookmark();
             }
 
             @Override
