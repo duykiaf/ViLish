@@ -65,7 +65,8 @@ public class AudioListFragment extends Fragment {
     private List<Audio> audioListByTopicId = new ArrayList<>();
     private List<Audio> bookmarksList = new ArrayList<>();
     private List<Audio> downloadedAudioList = new ArrayList<>();
-    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter;
+    private List<Audio> audioSearchList;
+    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter, startIndex;
     private String contentDesc, getAudioTranslations;
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
@@ -384,12 +385,24 @@ public class AudioListFragment extends Fragment {
             public void onItemClick(Audio item, int position) {
                 audioViewModel.setStopState(false);
                 currentMediaItemIndex = player.getCurrentMediaItemIndex();
-
+                isSearching = audioViewModel.getSearchingFlag();
+                if (!isSearching) {
+                    startIndex = position;
+                }
                 if (player.isPlaying()) {
-                    if (currentMediaItemIndex != position) {
+                    if (isSearching) {
+                        if (isAudioListScreen) {
+                            startIndex = audioListByTopicId.indexOf(item);
+                        } else if (isBookmarksScreen) {
+                            startIndex = bookmarksList.indexOf(item);
+                        } else if (isAudioDownloadedScreen) {
+                            startIndex = downloadedAudioList.indexOf(item);
+                        }
+                    }
+                    if (currentMediaItemIndex != startIndex) {
                         playingAudioBundle.putBoolean(AppConstant.PLAY_ANOTHER_AUDIO, true);
                         player.pause();
-                        player.seekTo(position, 0);
+                        player.seekTo(startIndex, 0);
                     }
                     prepareAndPlayAudio(player);
                 } else {
@@ -398,14 +411,23 @@ public class AudioListFragment extends Fragment {
                         if (oldTopicId != null && !Objects.equals(oldTopicId, topicId)) {
                             player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), 0, 0);
                         }
-                        playAudioAt(currentMediaItemIndex, position, AppConstant.AUDIO_LIST_BY_ID);
+                        if (isSearching) {
+                            startIndex = audioListByTopicId.indexOf(item);
+                        }
+                        playAudioAt(currentMediaItemIndex, startIndex, AppConstant.AUDIO_LIST_BY_ID);
                     } else if (isBookmarksScreen) {
-                        playAudioAt(currentMediaItemIndex, position, AppConstant.BOOKMARKS);
+                        if (isSearching) {
+                            startIndex = bookmarksList.indexOf(item);
+                        }
+                        playAudioAt(currentMediaItemIndex, startIndex, AppConstant.BOOKMARKS);
                     } else if (isAudioDownloadedScreen) {
-                        playAudioAt(currentMediaItemIndex, position, AppConstant.DOWNLOADED);
+                        if (isSearching) {
+                            startIndex = downloadedAudioList.indexOf(item);
+                        }
+                        playAudioAt(currentMediaItemIndex, startIndex, AppConstant.DOWNLOADED);
                     }
                 }
-                playingAudioBundle.putInt(AppConstant.CURRENT_MEDIA_ITEM_INDEX, position);
+                playingAudioBundle.putInt(AppConstant.CURRENT_MEDIA_ITEM_INDEX, startIndex);
                 navController.navigate(R.id.action_audioListFragment_to_audioDetailsFragment, playingAudioBundle);
             }
 
@@ -766,7 +788,7 @@ public class AudioListFragment extends Fragment {
     }
 
     private void getAudioSearchList(String keyword) {
-        List<Audio> audioSearchList = new ArrayList<>();
+        audioSearchList = new ArrayList<>();
         if (isAudioListScreen) {
             for (Audio audio : audioListByTopicId) {
                 if (audio.getName().toLowerCase().contains(keyword.toLowerCase())) {
