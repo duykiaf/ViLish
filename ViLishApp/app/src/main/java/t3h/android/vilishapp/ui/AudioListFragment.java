@@ -131,8 +131,6 @@ public class AudioListFragment extends Fragment {
     }
 
     private void initAudioList() {
-        setStopStateAndStopExoplayer();
-
         String audioScreenTitle = AppConstant.AUDIO_SCREEN_TITLE;
         audioViewModel.audioListScreenFlag().observe(requireActivity(), flag -> isAudioListScreen = flag);
         audioViewModel.bookmarksScreenFlag().observe(requireActivity(), flag -> isBookmarksScreen = flag);
@@ -740,12 +738,14 @@ public class AudioListFragment extends Fragment {
                 audioViewModel.setIsAudioDownloadedScreen(true);
                 audioViewModel.setIsAudioListScreen(false);
                 audioViewModel.setIsBookmarksScreen(false);
+                setStopStateAndStopExoplayer();
                 initAudioList();
                 return true;
             case R.id.bookmarksItem:
                 audioViewModel.setIsBookmarksScreen(true);
                 audioViewModel.setIsAudioDownloadedScreen(false);
                 audioViewModel.setIsAudioListScreen(false);
+                setStopStateAndStopExoplayer();
                 initAudioList();
                 return true;
         }
