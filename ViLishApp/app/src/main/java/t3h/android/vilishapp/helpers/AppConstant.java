@@ -53,7 +53,6 @@ public class AppConstant {
     public static final String DELETE_SUCCESS = "Delete successfully";
     public static final String DELETE_FAILED = "Delete failed";
     public static final String AUDIO_LIST_BY_ID = "Audio list";
-    public static int REQUEST_CODE = 6798;
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
     public static final String TRASH_ICON = "Trash icon";
