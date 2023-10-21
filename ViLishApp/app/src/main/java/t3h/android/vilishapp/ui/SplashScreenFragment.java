@@ -10,15 +10,19 @@ import android.view.animation.AnimationUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import t3h.android.vilishapp.R;
 import t3h.android.vilishapp.databinding.FragmentSplashScreenBinding;
+import t3h.android.vilishapp.helpers.NetworkHelper;
+import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
 public class SplashScreenFragment extends Fragment {
     private FragmentSplashScreenBinding binding;
     private NavController navController;
+    private AudioViewModel audioViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,6 +35,7 @@ public class SplashScreenFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(requireActivity(), R.id.navHostFragment);
+        audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
         initAnimation();
     }
 
@@ -46,9 +51,18 @@ public class SplashScreenFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        binding.startBtn.setOnClickListener(v ->
-                navController.navigate(R.id.action_splashScreenFragment_to_topicsListFragment)
-        );
+        binding.startBtn.setOnClickListener(v -> {
+            audioViewModel.setSplashScreenFlag(false);
+            boolean networkAvailable = NetworkHelper.isInternetConnected(requireContext());
+            if (!networkAvailable) {
+                audioViewModel.setIsAudioDownloadedScreen(true);
+                audioViewModel.setIsAudioListScreen(false);
+                audioViewModel.setIsBookmarksScreen(false);
+                navController.navigate(R.id.audioListFragment);
+            } else {
+                navController.navigate(R.id.action_splashScreenFragment_to_topicsListFragment);
+            }
+        });
     }
 
     @Override
