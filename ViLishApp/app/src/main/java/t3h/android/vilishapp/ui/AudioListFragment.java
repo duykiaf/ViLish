@@ -131,6 +131,8 @@ public class AudioListFragment extends Fragment {
     }
 
     private void initAudioList() {
+        setStopStateAndStopExoplayer();
+
         String audioScreenTitle = AppConstant.AUDIO_SCREEN_TITLE;
         audioViewModel.audioListScreenFlag().observe(requireActivity(), flag -> isAudioListScreen = flag);
         audioViewModel.bookmarksScreenFlag().observe(requireActivity(), flag -> isBookmarksScreen = flag);
@@ -470,9 +472,6 @@ public class AudioListFragment extends Fragment {
                         } else {
                             Toast.makeText(requireContext(), AppConstant.DOWNLOAD_IS_IN_PROGRESS, Toast.LENGTH_SHORT).show();
                         }
-//                        if (icon.getContentDescription().equals(AppConstant.TRASH_ICON)) {
-//                            Log.e("DNV-path", item.getAudioFileFromDevice() == null ? "null" : item.getAudioFileFromDevice());
-//                        }
                         break;
                     case R.id.bookmarkIcon:
                         if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
@@ -741,14 +740,12 @@ public class AudioListFragment extends Fragment {
                 audioViewModel.setIsAudioDownloadedScreen(true);
                 audioViewModel.setIsAudioListScreen(false);
                 audioViewModel.setIsBookmarksScreen(false);
-                setStopStateAndStopExoplayer();
                 initAudioList();
                 return true;
             case R.id.bookmarksItem:
                 audioViewModel.setIsBookmarksScreen(true);
                 audioViewModel.setIsAudioDownloadedScreen(false);
                 audioViewModel.setIsAudioListScreen(false);
-                setStopStateAndStopExoplayer();
                 initAudioList();
                 return true;
         }
