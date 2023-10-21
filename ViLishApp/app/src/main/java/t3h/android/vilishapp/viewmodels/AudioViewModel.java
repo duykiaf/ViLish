@@ -28,6 +28,7 @@ public class AudioViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> isAudioListScreen = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isBookmarksScreen = new MutableLiveData<>(false);
     private MutableLiveData<Boolean> isAudioDownloadedScreen = new MutableLiveData<>(false);
+    private MutableLiveData<Boolean> isSplashScreen = new MutableLiveData<>(true);
     private MutableLiveData<Integer> bookmarkDeletedPos = new MutableLiveData<>(-1);
     private MutableLiveData<Integer> downloadAudioDeletedPos = new MutableLiveData<>(-1);
     private MutableLiveData<Boolean> isDownloading = new MutableLiveData<>(false);
@@ -143,6 +144,14 @@ public class AudioViewModel extends AndroidViewModel {
 
     public LiveData<Boolean> audioDownloadedScreenFlag() {
         return isAudioDownloadedScreen;
+    }
+
+    public void setSplashScreenFlag(Boolean isSplashScreen) {
+        this.isSplashScreen.setValue(isSplashScreen);
+    }
+
+    public LiveData<Boolean> splashScreenFlag() {
+        return isSplashScreen;
     }
 
     public void setBookmarkDeletedPos(Integer bookmarkDeletedPos) {
