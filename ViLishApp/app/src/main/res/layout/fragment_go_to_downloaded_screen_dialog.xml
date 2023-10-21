@@ -1,14 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/offlineDialog"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".ui.GoToDownloadedScreenDialogFragment">
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:background="@drawable/button_bg"
+    android:padding="@dimen/md">
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
+        android:id="@+id/offlineModeTxt"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:text="@string/you_re_offline"
+        android:textColor="@color/black"
+        android:textSize="@dimen/md_txt"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-</FrameLayout>
+    <TextView
+        android:id="@+id/goToDownloadedScreenTxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xx_sm"
+        android:text="@string/go_to_the_downloaded_page_qs"
+        android:textColor="@color/black"
+        android:textSize="@dimen/md_txt"
+        app:layout_constraintEnd_toEndOf="@id/offlineModeTxt"
+        app:layout_constraintStart_toStartOf="@id/offlineModeTxt"
+        app:layout_constraintTop_toBottomOf="@id/offlineModeTxt" />
+
+    <Button
+        android:id="@+id/okBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/xx_sm"
+        android:backgroundTint="@color/primaryColor"
+        android:text="@string/ok"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/goToDownloadedScreenTxt" />
+
+    <Button
+        android:id="@+id/noBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/x_sm"
+        android:backgroundTint="@color/lightRed"
+        android:text="@string/no"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/okBtn"
+        app:layout_constraintEnd_toStartOf="@id/okBtn"
+        app:layout_constraintTop_toTopOf="@id/okBtn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
