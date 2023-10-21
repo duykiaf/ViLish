@@ -29,4 +29,8 @@
     <string name="downloaded_audios">Downloaded audios</string>
     <string name="pause_icon">Pause icon</string>
     <string name="delete_all">Delete All</string>
+    <string name="you_re_offline">You\'re offline!</string>
+    <string name="go_to_the_downloaded_page_qs">Do you want to go to the downloaded page?</string>
+    <string name="ok">OK</string>
+    <string name="no">No</string>
 </resources>
