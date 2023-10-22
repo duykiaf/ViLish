@@ -528,7 +528,7 @@ public class AudioListFragment extends Fragment {
                 player.setMediaItems(ExoplayerHelper.getMediaItems(bookmarksList), position, 0);
                 break;
             case AppConstant.DOWNLOADED:
-                player.setMediaItems(ExoplayerHelper.getMediaItems(downloadedAudioList), position, 0);
+                player.setMediaItems(ExoplayerHelper.getDownloadedMediaItems(downloadedAudioList), position, 0);
                 break;
             default:
                 player.setMediaItems(ExoplayerHelper.getMediaItems(audioListByTopicId), position, 0);

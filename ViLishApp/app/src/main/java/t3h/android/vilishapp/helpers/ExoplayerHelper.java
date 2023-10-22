@@ -23,6 +23,20 @@ public class ExoplayerHelper {
         return mediaItems;
     }
 
+    public static List<MediaItem> getDownloadedMediaItems(List<Audio> audioList) {
+        List<MediaItem> mediaItems = new ArrayList<>();
+        for (Audio audio : audioList) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("file:///");
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(sb.append(audio.getAudioFileFromDevice()).toString())
+                    .setMediaMetadata(getMediaMetadata(audio))
+                    .build();
+            mediaItems.add(mediaItem);
+        }
+        return mediaItems;
+    }
+
     private static MediaMetadata getMediaMetadata(Audio audio) {
         Bundle bundle = new Bundle();
         bundle.putSerializable(AppConstant.AUDIO_ITEM, audio);
