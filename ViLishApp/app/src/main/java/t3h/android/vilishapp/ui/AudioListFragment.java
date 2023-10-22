@@ -840,7 +840,6 @@ public class AudioListFragment extends Fragment {
                 Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
             }
         });
-        initDeleteAllBtn(false);
     }
 
     private CompletableObserver deleteAllCompletableObserver() {
@@ -853,6 +852,7 @@ public class AudioListFragment extends Fragment {
             @Override
             public void onComplete() {
                 Toast.makeText(requireContext(), AppConstant.DELETE_SUCCESS, Toast.LENGTH_SHORT).show();
+                setNoDataState();
             }
 
             @Override
