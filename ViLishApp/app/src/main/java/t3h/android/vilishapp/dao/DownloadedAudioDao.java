@@ -23,8 +23,8 @@ public interface DownloadedAudioDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE, entity = DownloadedAudio.class)
     void insertDownloadedAudio(Audio audio);
 
-    @Delete(entity = DownloadedAudio.class)
-    int deleteSingleDownloadedAudio(Audio audio);
+    @Query("delete from downloaded_audio where id = :id")
+    int deleteDownloadedAudioById(String id);
 
     @Query("delete from downloaded_audio")
     void deleteAllDownloadedAudios();

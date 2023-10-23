@@ -164,7 +164,9 @@ public class AudioListFragment extends Fragment {
                         visibility = View.GONE;
                         initDeleteAllBtn(binding.searchEdtLayout.getVisibility() != View.VISIBLE);
                     }
-                    audioAdapter.updateItemList(bookmarksList);
+                    if (isBookmarksScreen) {
+                        audioAdapter.updateItemList(bookmarksList);
+                    }
                     binding.messageTxt.setVisibility(visibility);
                 });
             } else if (isAudioDownloadedScreen) {
@@ -178,7 +180,9 @@ public class AudioListFragment extends Fragment {
                         visibility = View.GONE;
                         initDeleteAllBtn(binding.searchEdtLayout.getVisibility() != View.VISIBLE);
                     }
-                    audioAdapter.updateItemList(downloadedAudios);
+                    if (isAudioDownloadedScreen) {
+                        audioAdapter.updateItemList(downloadedAudios);
+                    }
                     binding.messageTxt.setVisibility(visibility);
                 });
             }
@@ -231,16 +235,12 @@ public class AudioListFragment extends Fragment {
                                     audioListByTopicId.add(audio);
                                 }
                             }
-                            if (!audioListByTopicId.isEmpty()) {
-                                visibility = View.GONE;
-                            } else {
-                                visibility = View.VISIBLE;
-                            }
+                            visibility = !audioListByTopicId.isEmpty() ? View.GONE : View.VISIBLE;
                             binding.messageTxt.setVisibility(visibility);
                             audioRepository.getBookmarkAudioIds().observe(requireActivity(), bookmarkAudioIds -> {
                                 audioAdapter.setBookmarkAudioIds(bookmarkAudioIds);
                                 isSearching = audioViewModel.getSearchingFlag();
-                                if (!isSearching) {
+                                if (!isSearching && !isAudioDownloadedScreen && !isBookmarksScreen || isAudioListScreen) {
                                     audioAdapter.updateItemList(audioListByTopicId);
                                 }
                             });
@@ -470,6 +470,22 @@ public class AudioListFragment extends Fragment {
                         } else {
                             Toast.makeText(requireContext(), AppConstant.DOWNLOAD_IS_IN_PROGRESS, Toast.LENGTH_SHORT).show();
                         }
+
+                        if (icon.getContentDescription().equals(AppConstant.TRASH_ICON)) {
+                            contentDesc = AppConstant.DOWNLOAD_ICON;
+                            resId = R.drawable.white_download_ic;
+                            initDownloadOrCheckCircleIc(icon);
+                            // remove downloaded audio here
+                            Completable deleteDownloadedAudioObservable = deleteDownloadedAudio(item.getId());
+                            CompletableObserver deleteDownloadedAudioObserver = deleteDownloadedAudioObserver();
+                            if (deleteDownloadedAudioObservable != null) {
+                                deleteDownloadedAudioObservable.subscribeOn(Schedulers.io())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(deleteDownloadedAudioObserver);
+                            } else {
+                                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+                            }
+                        }
                         break;
                     case R.id.bookmarkIcon:
                         if (icon.getContentDescription().equals(getString(R.string.bookmark_border_icon))) {
@@ -501,8 +517,7 @@ public class AudioListFragment extends Fragment {
                                 Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
                             }
                         }
-                        icon.setImageResource(resId);
-                        icon.setContentDescription(contentDesc);
+                        initDownloadOrCheckCircleIc(icon);
                         break;
                 }
             }
@@ -560,7 +575,7 @@ public class AudioListFragment extends Fragment {
         });
     }
 
-    private void updateAudioStateAfterRemoveDownloaded(int position) {
+    private void updateAudioStateAfterRemoveDownloaded() {
         // cap nhat trang thai audio khi da remove downloaded audio
         downloadedAudioRepository.getDownloadedAudioList().observe(requireActivity(), downloadedAudioList -> {
             if (isAudioDownloadedScreen) {
@@ -678,10 +693,8 @@ public class AudioListFragment extends Fragment {
             if (emitter.isDisposed()) {
                 emitter.onError(new Exception());
             } else {
-                // logic add bookmark here
                 int deleteRow = audioRepository.deleteBookmark(item);
                 if (deleteRow > 0) {
-                    // complete callback
                     emitter.onComplete();
                 } else {
                     emitter.onError(new Exception());
@@ -699,13 +712,48 @@ public class AudioListFragment extends Fragment {
 
             @Override
             public void onComplete() {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
                 updateAudioStateAfterRemoveBookmark();
             }
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    private Completable deleteDownloadedAudio(String audioId) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                int deleteRow = downloadedAudioRepository.deleteSingleDownloadedAudio(audioId);
+                if (deleteRow > 0) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(new Exception());
+                }
+            }
+        });
+    }
+
+    private CompletableObserver deleteDownloadedAudioObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
+                updateAudioStateAfterRemoveDownloaded();
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
             }
         };
     }
@@ -819,11 +867,7 @@ public class AudioListFragment extends Fragment {
     }
 
     private void searchListResult(List<Audio> audioSearchList) {
-        if (audioSearchList.isEmpty()) {
-            visibility = View.VISIBLE;
-        } else {
-            visibility = View.GONE;
-        }
+        visibility = audioSearchList.isEmpty() ? View.VISIBLE : View.GONE;
         binding.messageTxt.setVisibility(visibility);
         audioAdapter.searchList(audioSearchList);
     }

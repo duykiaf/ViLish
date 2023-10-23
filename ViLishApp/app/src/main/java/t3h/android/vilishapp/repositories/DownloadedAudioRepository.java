@@ -33,8 +33,8 @@ public class DownloadedAudioRepository {
         downloadedAudioDao.insertDownloadedAudio(audio);
     }
 
-    public int deleteSingleDownloadedAudio(Audio audio) {
-        return downloadedAudioDao.deleteSingleDownloadedAudio(audio);
+    public int deleteSingleDownloadedAudio(String audioId) {
+        return downloadedAudioDao.deleteDownloadedAudioById(audioId);
     }
 
     public void deleteAllDownloadedAudios() {
