@@ -31,10 +31,12 @@
         app:layout_constraintTop_toBottomOf="@id/dialogTitle">
 
         <RadioButton
+            android:id="@+id/o5x"
             style="@style/RadioButtonStyle"
             android:text="@string/_0_5x" />
 
         <RadioButton
+            android:id="@+id/o75x"
             style="@style/RadioButtonStyle"
             android:text="@string/_0_75x" />
 
@@ -44,10 +46,12 @@
             android:text="@string/_1x" />
 
         <RadioButton
+            android:id="@+id/o125x"
             style="@style/RadioButtonStyle"
             android:text="@string/_1_25x" />
 
         <RadioButton
+            android:id="@+id/o15x"
             style="@style/RadioButtonStyle"
             android:text="@string/_1_5x" />
 
