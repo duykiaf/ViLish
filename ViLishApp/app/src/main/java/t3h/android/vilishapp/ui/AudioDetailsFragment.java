@@ -369,12 +369,12 @@ public class AudioDetailsFragment extends Fragment {
 
             @Override
             public void onComplete() {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
             }
         };
     }
