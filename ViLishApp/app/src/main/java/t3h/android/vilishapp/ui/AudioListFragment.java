@@ -288,7 +288,12 @@ public class AudioListFragment extends Fragment {
     public void onResume() {
         super.onResume();
         binding.appBarFragment.topAppBar.setOnMenuItemClickListener(this::onMenuItemClick);
-        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
+        binding.appBarFragment.topAppBar.setNavigationOnClickListener(v -> {
+            audioViewModel.setIsAudioListScreen(false);
+            audioViewModel.setIsBookmarksScreen(false);
+            audioViewModel.setIsAudioDownloadedScreen(false);
+            requireActivity().onBackPressed();
+        });
         playerControls();
         closeSearchLayout();
         onAudioItemClick();
