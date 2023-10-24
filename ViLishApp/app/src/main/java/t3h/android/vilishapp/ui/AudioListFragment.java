@@ -41,6 +41,7 @@ import java.util.Objects;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableEmitter;
 import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -67,7 +68,7 @@ public class AudioListFragment extends Fragment {
     private List<Audio> bookmarksList = new ArrayList<>();
     private List<Audio> downloadedAudioList = new ArrayList<>();
     private List<Audio> audioSearchList;
-    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter, startIndex;
+    private int visibility, resId, playOrPauseIconId, currentMediaItemIndex, itemCounter, startIndex, deletedRow;
     private String contentDesc, getAudioTranslations;
     private AudioAdapter audioAdapter;
     private ExoPlayer player;
@@ -473,7 +474,7 @@ public class AudioListFragment extends Fragment {
                             audioViewModel.setAudioSelected(audioSelected);
                             audioViewModel.setAudioCheckedPosListLiveData(audioPositionSelected);
                             initItemSelectedCounterLayout();
-                        } else {
+                        } else if (!icon.getContentDescription().equals(AppConstant.TRASH_ICON) && isDownloading) {
                             Toast.makeText(requireContext(), AppConstant.DOWNLOAD_IS_IN_PROGRESS, Toast.LENGTH_SHORT).show();
                         }
 
@@ -482,8 +483,8 @@ public class AudioListFragment extends Fragment {
                             resId = R.drawable.white_download_ic;
                             initDownloadOrCheckCircleIc(icon);
                             // remove downloaded audio here
-                            Completable deleteDownloadedAudioObservable = deleteDownloadedAudio(item.getId());
-                            CompletableObserver deleteDownloadedAudioObserver = deleteDownloadedAudioObserver();
+                            Completable deleteDownloadedAudioObservable = handlingCompletable(item, AppConstant.REMOVE_DOWNLOADED_AUDIO);
+                            CompletableObserver deleteDownloadedAudioObserver = handlingCompletableObserver(AppConstant.REMOVE_DOWNLOADED_AUDIO);
                             if (deleteDownloadedAudioObservable != null) {
                                 deleteDownloadedAudioObservable.subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
@@ -498,8 +499,8 @@ public class AudioListFragment extends Fragment {
                             contentDesc = getString(R.string.bookmark_icon);
                             resId = R.drawable.blue_bookmark_ic;
                             // add bookmark here
-                            Completable addBookmarkObservable = addBookmark(item);
-                            CompletableObserver completableObserver = completableObserver();
+                            Completable addBookmarkObservable = handlingCompletable(item, AppConstant.ADD_BOOKMARK);
+                            CompletableObserver completableObserver = handlingCompletableObserver(AppConstant.ADD_BOOKMARK);
                             if (addBookmarkObservable != null) {
                                 addBookmarkObservable.subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
@@ -513,8 +514,8 @@ public class AudioListFragment extends Fragment {
                             contentDesc = getString(R.string.bookmark_border_icon);
                             resId = R.drawable.bookmark_blue_border_ic;
                             // remove bookmark here
-                            Completable deleteBookmarkObservable = deleteBookmark(item);
-                            CompletableObserver deleteBookmarkObserver = deleteBookmarkObserver();
+                            Completable deleteBookmarkObservable = handlingCompletable(item, AppConstant.REMOVE_BOOKMARK);
+                            CompletableObserver deleteBookmarkObserver = handlingCompletableObserver(AppConstant.REMOVE_BOOKMARK);
                             if (deleteBookmarkObservable != null) {
                                 deleteBookmarkObservable.subscribeOn(Schedulers.io())
                                         .observeOn(AndroidSchedulers.mainThread())
@@ -665,107 +666,6 @@ public class AudioListFragment extends Fragment {
             initDeleteAllBtn(bookmarksList != null && !bookmarksList.isEmpty());
             reloadAudioListAfterSearch();
         });
-    }
-
-    private Completable addBookmark(Audio item) {
-        return Completable.create(emitter -> {
-            if (emitter.isDisposed()) {
-                emitter.onError(new Exception());
-            } else {
-                // logic add bookmark here
-                audioRepository.addBookmark(item);
-                emitter.onComplete();
-            }
-        });
-    }
-
-    private CompletableObserver completableObserver() {
-        return new CompletableObserver() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                disposable = d;
-            }
-
-            @Override
-            public void onComplete() {
-                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_FAILED, Toast.LENGTH_SHORT).show();
-            }
-        };
-    }
-
-    private Completable deleteBookmark(Audio item) {
-        return Completable.create(emitter -> {
-            if (emitter.isDisposed()) {
-                emitter.onError(new Exception());
-            } else {
-                int deleteRow = audioRepository.deleteBookmark(item);
-                if (deleteRow > 0) {
-                    emitter.onComplete();
-                } else {
-                    emitter.onError(new Exception());
-                }
-            }
-        });
-    }
-
-    private CompletableObserver deleteBookmarkObserver() {
-        return new CompletableObserver() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                disposable = d;
-            }
-
-            @Override
-            public void onComplete() {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
-                updateAudioStateAfterRemoveBookmark();
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
-            }
-        };
-    }
-
-    private Completable deleteDownloadedAudio(String audioId) {
-        return Completable.create(emitter -> {
-            if (emitter.isDisposed()) {
-                emitter.onError(new Exception());
-            } else {
-                int deleteRow = downloadedAudioRepository.deleteSingleDownloadedAudio(audioId);
-                if (deleteRow > 0) {
-                    emitter.onComplete();
-                } else {
-                    emitter.onError(new Exception());
-                }
-            }
-        });
-    }
-
-    private CompletableObserver deleteDownloadedAudioObserver() {
-        return new CompletableObserver() {
-            @Override
-            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
-                disposable = d;
-            }
-
-            @Override
-            public void onComplete() {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
-                updateAudioStateAfterRemoveDownloaded();
-            }
-
-            @Override
-            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
-                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
-            }
-        };
     }
 
     private void prepareAndPlayAudio(ExoPlayer player) {
@@ -929,6 +829,68 @@ public class AudioListFragment extends Fragment {
                 emitter.onComplete();
             }
         });
+    }
+
+    private Completable handlingCompletable(Audio item, int flagTask) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                switch (flagTask) {
+                    case AppConstant.ADD_BOOKMARK:
+                        audioRepository.addBookmark(item);
+                        emitter.onComplete();
+                        break;
+                    case AppConstant.REMOVE_BOOKMARK:
+                        deletedRow = audioRepository.deleteBookmark(item);
+                        onDeleteComplete(emitter, deletedRow);
+                        break;
+                    case AppConstant.REMOVE_DOWNLOADED_AUDIO:
+                        deletedRow = downloadedAudioRepository.deleteSingleDownloadedAudio(item.getId());
+                        onDeleteComplete(emitter, deletedRow);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void onDeleteComplete(CompletableEmitter emitter, int deletedRow) {
+        if (deletedRow > 0) {
+            emitter.onComplete();
+        } else {
+            emitter.onError(new Exception());
+        }
+    }
+
+    private CompletableObserver handlingCompletableObserver(int flagTask) {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                switch (flagTask) {
+                    case AppConstant.ADD_BOOKMARK:
+                        Toast.makeText(requireContext(), AppConstant.ADD_BOOKMARK_SUCCESS, Toast.LENGTH_SHORT).show();
+                        break;
+                    case AppConstant.REMOVE_BOOKMARK:
+                        Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
+                        updateAudioStateAfterRemoveBookmark();
+                        break;
+                    case AppConstant.REMOVE_DOWNLOADED_AUDIO:
+                        Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
+                        updateAudioStateAfterRemoveDownloaded();
+                        break;
+                }
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.FAILED_MESSAGE, Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 
     @Override
