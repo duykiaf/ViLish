@@ -44,4 +44,8 @@ public class AppConstant {
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
     public static final String TRASH_ICON = "Trash icon";
     public static final String NETWORK_NOT_AVAILABLE = "Please check your internet";
+    public static final String FAILED_MESSAGE = "Failed";
+    public static final int ADD_BOOKMARK = 1;
+    public static final int REMOVE_BOOKMARK = 2;
+    public static final int REMOVE_DOWNLOADED_AUDIO = 3;
 }
