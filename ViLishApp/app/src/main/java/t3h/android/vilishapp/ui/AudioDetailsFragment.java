@@ -1,6 +1,11 @@
 package t3h.android.vilishapp.ui;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -25,6 +30,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +46,8 @@ import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.AudioHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
+import t3h.android.vilishapp.repositories.DownloadedAudioRepository;
+import t3h.android.vilishapp.services.DownloadAudioService;
 import t3h.android.vilishapp.viewmodels.AudioViewModel;
 
 public class AudioDetailsFragment extends Fragment {
@@ -55,6 +63,18 @@ public class AudioDetailsFragment extends Fragment {
     private float audioSpeedValue, getCurrentAudioSpeed;
     private PlaybackParameters playbackParameters;
     private RadioButton radioChecked;
+    private HashMap<String, Audio> audioSelected = new HashMap<>();
+    private DownloadedAudioRepository downloadedAudioRepository;
+
+    private BroadcastReceiver downloadCompletedBroadcast = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean isComplete = intent.getBooleanExtra(AppConstant.DOWNLOAD_COMPLETE, false);
+            if (isComplete) {
+                downloadCompleted();
+            }
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -68,6 +88,7 @@ public class AudioDetailsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         audioViewModel = new ViewModelProvider(requireActivity()).get(AudioViewModel.class);
         audioRepository = new AudioRepository(requireActivity().getApplication());
+        downloadedAudioRepository = new DownloadedAudioRepository(requireActivity().getApplication());
         initViewPager();
         player = audioViewModel.getExoplayer();
         getCurrentAudioSpeed = player.getPlaybackParameters().speed;
@@ -75,7 +96,14 @@ public class AudioDetailsFragment extends Fragment {
         binding.audioSpeed.setText(sb.append(getCurrentAudioSpeed).append("x"));
         initAudioControlLayout();
         initBookmarkIcon(null);
+        initDownloadOrTrashIc(null);
         binding.audioSpeed.setOnClickListener(v -> showSpeedSettingDialog(view));
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        requireActivity().registerReceiver(downloadCompletedBroadcast, new IntentFilter(AppConstant.DOWNLOAD_COMPLETED_BROADCAST));
     }
 
     private void showSpeedSettingDialog(View v) {
@@ -221,6 +249,68 @@ public class AudioDetailsFragment extends Fragment {
         binding.topAppBar.setNavigationOnClickListener(v -> requireActivity().onBackPressed());
         playerControls();
         addOrRemoveBookmark();
+        onDownloadIcClickListener();
+    }
+
+    private void onDownloadIcClickListener() {
+        binding.downloadOrTrashIc.setOnClickListener(v -> {
+            String contentDesc = binding.downloadOrTrashIc.getContentDescription().toString();
+            if (contentDesc.equalsIgnoreCase(AppConstant.DOWNLOAD_ICON)) { // tai audio
+                binding.downloadOrTrashIc.setVisibility(View.GONE);
+                binding.audioDetailsProgressBar.setVisibility(View.VISIBLE);
+
+                Audio audioItem = (Audio) Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.get(AppConstant.AUDIO_ITEM);
+                audioSelected.put(audioItem.getId(), audioItem);
+
+                Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
+                intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
+                audioViewModel.setIsDownloading(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireActivity().startForegroundService(intent);
+                } else {
+                    requireActivity().startService(intent);
+                }
+            } else { // xoa audio da tai xuong
+
+            }
+        });
+    }
+
+    private void downloadCompleted() {
+        binding.audioDetailsProgressBar.setVisibility(View.GONE);
+        binding.downloadOrTrashIc.setVisibility(View.VISIBLE);
+        audioViewModel.setIsDownloading(false);
+        initDownloadOrTrashIc(getCurrentAudioId);
+    }
+
+    private void initDownloadOrTrashIc(String audioId) {
+        if (audioId == null) {
+            getCurrentAudioId = ((Audio) Objects.requireNonNull(player.getCurrentMediaItem())
+                    .mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)
+            ).getId();
+        } else {
+            getCurrentAudioId = audioId;
+        }
+        downloadedAudioRepository.getDownloadedAudioIds().observe(requireActivity(), ids -> {
+            for (String id : ids) {
+                if (getCurrentAudioId.equals(id)) {
+                    setIconType(true);
+                    break;
+                } else {
+                    setIconType(false);
+                }
+            }
+        });
+    }
+
+    private void setIconType(boolean isDownloadedAudio) {
+        if (isDownloadedAudio) {
+            binding.downloadOrTrashIc.setContentDescription(AppConstant.TRASH_ICON);
+            binding.downloadOrTrashIc.setImageResource(R.drawable.trash);
+        } else {
+            binding.downloadOrTrashIc.setContentDescription(AppConstant.DOWNLOAD_ICON);
+            binding.downloadOrTrashIc.setImageResource(R.drawable.white_download_ic);
+        }
     }
 
     private void playerControls() {
@@ -297,6 +387,7 @@ public class AudioDetailsFragment extends Fragment {
                 if (isAdded()) {
                     getCurrentAudioId = ((Audio) mediaItem.mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)).getId();
                     initBookmarkIcon(getCurrentAudioId);
+                    initDownloadOrTrashIc(getCurrentAudioId);
                 }
             }
 
@@ -313,6 +404,7 @@ public class AudioDetailsFragment extends Fragment {
                             .mediaMetadata.extras.get(AppConstant.AUDIO_ITEM)
                     ).getId();
                     initBookmarkIcon(getCurrentAudioId);
+                    initDownloadOrTrashIc(getCurrentAudioId);
                 }
             }
         });
@@ -475,5 +567,6 @@ public class AudioDetailsFragment extends Fragment {
         if (disposable != null) {
             disposable.dispose();
         }
+        requireActivity().unregisterReceiver(downloadCompletedBroadcast);
     }
 }
