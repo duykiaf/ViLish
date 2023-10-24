@@ -145,7 +145,7 @@
                 android:layout_width="@dimen/x_md"
                 android:layout_height="@dimen/x_md"
                 android:layout_gravity="center_vertical"
-                android:contentDescription="@string/bookmark_border_icon"
+                android:contentDescription="@string/download_icon"
                 android:src="@drawable/white_download_ic"
                 app:tint="@color/primaryColor" />
 
