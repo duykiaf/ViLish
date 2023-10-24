@@ -49,6 +49,7 @@ import t3h.android.vilishapp.adapters.AudioAdapter;
 import t3h.android.vilishapp.databinding.FragmentAudioListBinding;
 import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.ExoplayerHelper;
+import t3h.android.vilishapp.helpers.NetworkHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
 import t3h.android.vilishapp.repositories.DownloadedAudioRepository;
@@ -632,14 +633,18 @@ public class AudioListFragment extends Fragment {
 
     private void onDownloadIcClickListener() {
         binding.download.setOnClickListener(v -> {
-            binding.selectedNotificationLayout.setVisibility(View.GONE);
-            Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
-            intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
-            audioViewModel.setIsDownloading(true);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                requireActivity().startForegroundService(intent);
+            if (NetworkHelper.isInternetConnected(requireContext())) {
+                binding.selectedNotificationLayout.setVisibility(View.GONE);
+                Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
+                intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
+                audioViewModel.setIsDownloading(true);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    requireActivity().startForegroundService(intent);
+                } else {
+                    requireActivity().startService(intent);
+                }
             } else {
-                requireActivity().startService(intent);
+                Toast.makeText(requireContext(), AppConstant.NETWORK_NOT_AVAILABLE, Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -44,6 +44,7 @@ import t3h.android.vilishapp.adapters.FragmentAdapter;
 import t3h.android.vilishapp.databinding.FragmentAudioDetailsBinding;
 import t3h.android.vilishapp.helpers.AppConstant;
 import t3h.android.vilishapp.helpers.AudioHelper;
+import t3h.android.vilishapp.helpers.NetworkHelper;
 import t3h.android.vilishapp.models.Audio;
 import t3h.android.vilishapp.repositories.AudioRepository;
 import t3h.android.vilishapp.repositories.DownloadedAudioRepository;
@@ -257,18 +258,22 @@ public class AudioDetailsFragment extends Fragment {
             String contentDesc = binding.downloadOrTrashIc.getContentDescription().toString();
             Audio audioItem = (Audio) Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.get(AppConstant.AUDIO_ITEM);
             if (contentDesc.equalsIgnoreCase(AppConstant.DOWNLOAD_ICON)) { // tai audio
-                binding.downloadOrTrashIc.setVisibility(View.GONE);
-                binding.audioDetailsProgressBar.setVisibility(View.VISIBLE);
+                if (NetworkHelper.isInternetConnected(requireContext())) {
+                    binding.downloadOrTrashIc.setVisibility(View.GONE);
+                    binding.audioDetailsProgressBar.setVisibility(View.VISIBLE);
 
-                audioSelected.put(audioItem.getId(), audioItem);
+                    audioSelected.put(audioItem.getId(), audioItem);
 
-                Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
-                intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
-                audioViewModel.setIsDownloading(true);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    requireActivity().startForegroundService(intent);
+                    Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
+                    intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
+                    audioViewModel.setIsDownloading(true);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        requireActivity().startForegroundService(intent);
+                    } else {
+                        requireActivity().startService(intent);
+                    }
                 } else {
-                    requireActivity().startService(intent);
+                    Toast.makeText(requireContext(), AppConstant.NETWORK_NOT_AVAILABLE, Toast.LENGTH_SHORT).show();
                 }
             } else { // xoa audio da tai xuong
                 Completable deleteDownloadedAudioObservable = deleteDownloadedAudio(audioItem.getId());
