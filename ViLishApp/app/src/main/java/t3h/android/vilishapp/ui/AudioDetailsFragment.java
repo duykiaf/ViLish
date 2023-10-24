@@ -255,11 +255,11 @@ public class AudioDetailsFragment extends Fragment {
     private void onDownloadIcClickListener() {
         binding.downloadOrTrashIc.setOnClickListener(v -> {
             String contentDesc = binding.downloadOrTrashIc.getContentDescription().toString();
+            Audio audioItem = (Audio) Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.get(AppConstant.AUDIO_ITEM);
             if (contentDesc.equalsIgnoreCase(AppConstant.DOWNLOAD_ICON)) { // tai audio
                 binding.downloadOrTrashIc.setVisibility(View.GONE);
                 binding.audioDetailsProgressBar.setVisibility(View.VISIBLE);
 
-                Audio audioItem = (Audio) Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.extras.get(AppConstant.AUDIO_ITEM);
                 audioSelected.put(audioItem.getId(), audioItem);
 
                 Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
@@ -271,9 +271,53 @@ public class AudioDetailsFragment extends Fragment {
                     requireActivity().startService(intent);
                 }
             } else { // xoa audio da tai xuong
-
+                Completable deleteDownloadedAudioObservable = deleteDownloadedAudio(audioItem.getId());
+                CompletableObserver deleteDownloadedAudioObserver = deleteDownloadedAudioObserver();
+                if (deleteDownloadedAudioObservable != null) {
+                    deleteDownloadedAudioObservable.subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(deleteDownloadedAudioObserver);
+                } else {
+                    Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+    private Completable deleteDownloadedAudio(String audioId) {
+        return Completable.create(emitter -> {
+            if (emitter.isDisposed()) {
+                emitter.onError(new Exception());
+            } else {
+                int deleteRow = downloadedAudioRepository.deleteSingleDownloadedAudio(audioId);
+                if (deleteRow > 0) {
+                    emitter.onComplete();
+                } else {
+                    emitter.onError(new Exception());
+                }
+            }
+        });
+    }
+
+    private CompletableObserver deleteDownloadedAudioObserver() {
+        return new CompletableObserver() {
+            @Override
+            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) {
+                disposable = d;
+            }
+
+            @Override
+            public void onComplete() {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_SUCCESS, Toast.LENGTH_SHORT).show();
+                setIconType(false);
+            }
+
+            @Override
+            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable e) {
+                Toast.makeText(requireContext(), AppConstant.REMOVE_FAILED, Toast.LENGTH_SHORT).show();
+                setIconType(true);
+            }
+        };
     }
 
     private void downloadCompleted() {
