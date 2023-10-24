@@ -43,4 +43,5 @@ public class AppConstant {
     public static final String BOOKMARK_ICON = "Bookmark icon";
     public static final String BOOKMARK_BORDER_ICON = "Bookmark border icon";
     public static final String TRASH_ICON = "Trash icon";
+    public static final String NETWORK_NOT_AVAILABLE = "Please check your internet";
 }
