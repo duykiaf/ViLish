@@ -202,11 +202,12 @@ public class AudioDetailsFragment extends Fragment {
         if (!player.isPlaying()) {
             if (isTheFirstOpenTime) {
                 isTheFirstOpenTime = false;
-                if (!audioViewModel.getBottomControlClickListener()) {
-                    setUpCurrentMediaItem();
-                } else {
-                    binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
-                }
+//                if (!audioViewModel.getBottomControlClickListener()) {
+//                    setUpCurrentMediaItem();
+//                } else {
+//                    binding.audioTitle.setText(Objects.requireNonNull(player.getCurrentMediaItem()).mediaMetadata.title);
+//                }
+                setUpCurrentMediaItem();
                 audioViewModel.setBottomControlClick(false);
             }
             player.play();
@@ -228,7 +229,8 @@ public class AudioDetailsFragment extends Fragment {
     }
 
     private void setUpCurrentMediaItem() {
-        player.seekTo((Integer) requireArguments().get(AppConstant.CURRENT_MEDIA_ITEM_INDEX), C.TIME_UNSET);
+//        player.seekTo((Integer) requireArguments().get(AppConstant.CURRENT_MEDIA_ITEM_INDEX), C.TIME_UNSET);
+        player.seekTo((Integer) requireArguments().get(AppConstant.CURRENT_MEDIA_ITEM_INDEX), player.getCurrentPosition());
         player.prepare();
     }
 
