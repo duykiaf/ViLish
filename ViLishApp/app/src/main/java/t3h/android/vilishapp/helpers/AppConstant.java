@@ -31,7 +31,7 @@ public class AppConstant {
     public static final String ITEM_SELECTED_COUNTER_TXT = "/10 item selected";
     public static final String MAX_DOWNLOAD_FILES_MESSAGE = "You are only allowed to download 10 files at a time!";
     public static final int CORE_POOL_SIZE = 1;
-    public static final String DOWNLOADING_TITLE = "Downloading Audio";
+    public static final String DOWNLOADING_TITLE = "Downloading";
     public static final String DOWNLOAD_COMPLETE = "Download Complete";
     public static final String AUDIO_SELECTED_LIST = "audioSelectedList";
     public static final int KEEP_ALIVE_TIME = 5;
@@ -48,4 +48,6 @@ public class AppConstant {
     public static final int ADD_BOOKMARK = 1;
     public static final int REMOVE_BOOKMARK = 2;
     public static final int REMOVE_DOWNLOADED_AUDIO = 3;
+    public static final String ARE_YOU_SURE = "Are you sure?";
+    public static final String DELETE_ALL = "Delete all";
 }
