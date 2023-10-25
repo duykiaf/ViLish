@@ -68,10 +68,11 @@
         app:layout_constraintStart_toStartOf="@id/progressBar"
         app:layout_constraintTop_toBottomOf="@id/progressBar" />
 
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/viewContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@id/audiosRcv"
         app:layout_constraintTop_toBottomOf="@id/messageTxt">
 
@@ -130,7 +131,7 @@
                 app:tint="@color/primaryColor" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </FrameLayout>
+    </LinearLayout>
 
 
     <androidx.recyclerview.widget.RecyclerView
