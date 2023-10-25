@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
@@ -81,6 +82,7 @@ public class AudioListFragment extends Fragment {
     private boolean isTheFirstTimePlayAudio = true;
     private DownloadedAudioRepository downloadedAudioRepository;
     private StringBuffer itemSelectedCounterTxt;
+    private AlertDialog deleteAlertDialog;
     private BroadcastReceiver downloadCompletedBroadcast = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -639,6 +641,8 @@ public class AudioListFragment extends Fragment {
                 Intent intent = new Intent(requireActivity(), DownloadAudioService.class);
                 intent.putExtra(AppConstant.AUDIO_SELECTED_LIST, audioSelected);
                 audioViewModel.setIsDownloading(true);
+                audioViewModel.setItemDownloadSelectedCounter(0);
+                Toast.makeText(requireContext(), AppConstant.DOWNLOADING_TITLE, Toast.LENGTH_LONG).show();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     requireActivity().startForegroundService(intent);
                 } else {
@@ -783,17 +787,30 @@ public class AudioListFragment extends Fragment {
     }
 
     private void deleteAllBookmarksOrDownloadedAudios() {
-        binding.deleteAllBtn.setOnClickListener(v -> {
-            Completable deleteAllObservable = deleteAll();
-            CompletableObserver completableObserver = deleteAllCompletableObserver();
-            if (deleteAllObservable != null) {
-                deleteAllObservable.subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(completableObserver);
-            } else {
-                Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
-            }
-        });
+        binding.deleteAllBtn.setOnClickListener(v -> showDeleteAlertDialog());
+    }
+
+    private void showDeleteAlertDialog() {
+        if (deleteAlertDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setMessage(AppConstant.ARE_YOU_SURE)
+                    .setTitle(AppConstant.DELETE_ALL);
+            builder.setPositiveButton(R.string.ok, (dialog, id) -> {
+                Completable deleteAllObservable = deleteAll();
+                CompletableObserver completableObserver = deleteAllCompletableObserver();
+                if (deleteAllObservable != null) {
+                    deleteAllObservable.subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(completableObserver);
+                } else {
+                    Toast.makeText(requireContext(), AppConstant.SYSTEM_ERROR, Toast.LENGTH_SHORT).show();
+                }
+                deleteAlertDialog.dismiss();
+            });
+            builder.setNegativeButton(R.string.no, (dialog, id) -> deleteAlertDialog.dismiss());
+            deleteAlertDialog = builder.create();
+        }
+        deleteAlertDialog.show();
     }
 
     private CompletableObserver deleteAllCompletableObserver() {
