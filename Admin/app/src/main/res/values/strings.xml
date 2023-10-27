@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Admin</string>
+    <string name="app_name">ViLish-AD</string>
     <string name="change_password">Change password</string>
     <string name="logout">Logout</string>
     <!-- TODO: Remove or change this placeholder text -->
@@ -25,7 +25,7 @@
     <string name="select_status">Status:</string>
     <string name="title">Title:</string>
     <string name="click_to_add_audio">(Click to add audio)</string>
-    <string name="file_name">File name</string>
+    <string name="file_name_preview">File name preview</string>
     <string name="lyrics">Lyrics:</string>
     <string name="select_topic">Topic:</string>
     <string name="translations">Translations:</string>
