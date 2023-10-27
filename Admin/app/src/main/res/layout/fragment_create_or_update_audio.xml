@@ -79,14 +79,15 @@
                 app:layout_constraintStart_toEndOf="@id/clickToAddAudioTxt"
                 app:layout_constraintTop_toTopOf="@id/clickToAddAudioTxt" />
 
-            <EditText
+            <TextView
                 android:id="@+id/fileNamePreview"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/lg"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/xx_sm"
                 android:backgroundTint="@color/primaryColor"
-                android:enabled="false"
-                android:hint="@string/file_name"
+                android:ellipsize="middle"
+                android:hint="@string/file_name_preview"
+                android:maxLines="1"
                 android:textColor="@color/black"
                 android:textColorHint="@color/primaryColor"
                 android:textSize="@dimen/heading_4"
